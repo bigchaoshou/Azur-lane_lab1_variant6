@@ -9,10 +9,10 @@ class BSTDictionary:
     def __init__(self):
         self.root = None
         self._size = 0
-
+#size
     def size(self):
         return self._size
-
+#add
     def add(self, key, value):
         """在字典中插入键值对"""
         if self.root is None:
@@ -34,6 +34,8 @@ class BSTDictionary:
                 self._add_recursive(node.right, key, value)
         else:
             node.value = value  # 如果键已存在，更新值
+
+#toList
     def to_list(self):
         """按序遍历返回 (key, value) 列表"""
         result = []
@@ -46,6 +48,7 @@ class BSTDictionary:
             result.append((node.key, node.value))
             self._inorder_traversal(node.right, result)
 
+#map
     def map(self, func):
         """对所有值应用函数"""
         self._map_recursive(self.root, func)
@@ -55,7 +58,7 @@ class BSTDictionary:
             node.value = func(node.value)
             self._map_recursive(node.left, func)
             self._map_recursive(node.right, func)
-
+#reduce
     def reduce(self, func, initial_state):
         """对所有 (key, value) 进行 reduce 计算"""
         state = initial_state
@@ -68,6 +71,7 @@ class BSTDictionary:
             state = self._reduce_recursive(node.right, func, state)
         return state
 
+#search
     def search(self, key):
         """查找 key，返回对应的 value"""
         node = self._search_recursive(self.root, key)
@@ -81,6 +85,7 @@ class BSTDictionary:
         else:
             return self._search_recursive(node.right, key)
 
+#delete
     def delete(self, key):
         """删除 key 并维护 BST 结构"""
         self.root = self._delete_recursive(self.root, key)
@@ -108,12 +113,14 @@ class BSTDictionary:
             node = node.left
         return node
 
+#update
     def update(self, key, new_value):
         """更新 key 的 value"""
         node = self._search_recursive(self.root, key)
         if node:
             node.value = new_value
 
+#tolist 重复了
     def inorder_traversal(self):
         """中序遍历（升序输出所有键值对）"""
         result = []
@@ -125,6 +132,12 @@ class BSTDictionary:
             self._inorder_recursive(node.left, result)
             result.append((node.key, node.value))
             self._inorder_recursive(node.right, result)
+
+""" 
+    add , size , tolist , map , reduce , search , delete 
+    无Filter, From List, Is a member, Set, update改成Set,iterator, concat
+    
+"""
 
 # 按装订区域中的绿色按钮以运行脚本。
 if __name__ == '__main__':
