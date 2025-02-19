@@ -42,6 +42,12 @@ class BSTDictionary:
             node.value = value  # 如果键已存在，更新值
             return False  # 不增加 size
 
+    # find_min
+    def _find_min(self, node):
+        while node.left is not None:
+            node = node.left
+        return node
+
     # search
     def search(self, key):
         """查找 key，返回对应的 value"""
@@ -132,7 +138,7 @@ class BSTDictionary:
         """根据给定的条件过滤元素"""
         result = []
         self._filter_recursive(self.root, predicate, result)
-        return result
+        return sorted(result,key=lambda x:x[0])
 
     def _filter_recursive(self, node, predicate, result):
         if node:
@@ -146,7 +152,7 @@ class BSTDictionary:
         """对字典中的每个元素应用指定的函数"""
         result = []
         self._map_recursive(self.root, func, result)
-        return result
+        return BSTDictionary.from_list(result)
 
     def _map_recursive(self, node, func, result):
         if node:
@@ -196,18 +202,17 @@ class BSTDictionary:
 
     # concat
     def concat(self, other):
-        """将另一个 BSTDictionary 合并到当前字典中，保留已有 key"""
+        """将另一个 BSTDictionary 合并到当前字典中，允许覆盖已有 key"""
         if not isinstance(other, BSTDictionary) or other.root is None:
             return
 
-        def add_if_absent(node):
+        def add_or_update(node):
             if node is not None:
-                if self.search(node.key) is None:
-                    self.add(node.key, node.value)
-                add_if_absent(node.left)
-                add_if_absent(node.right)
+                self.set(node.key, node.value)  # 允许覆盖已有 key
+                add_or_update(node.left)
+                add_or_update(node.right)
 
-        add_if_absent(other.root)
+        add_or_update(other.root)
 
 
 # 测试代码
