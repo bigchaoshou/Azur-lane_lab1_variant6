@@ -22,7 +22,7 @@ class BSTDictionary:
             self.root = BSTNode(key, value)
             self._size += 1
         else:
-            if not self._add_recursive(self.root, key, value):
+            if self._add_recursive(self.root, key, value):
                 self._size += 1
 
     def _add_recursive(self, node, key, value):
@@ -213,15 +213,18 @@ class BSTDictionary:
 # 测试代码
 if __name__ == "__main__":
     lst = BSTDictionary()
-    lst.add(1, "A")
-    lst.add(2, "B")
-    lst.add(3, "C")
-    lst.add(1, "")
-    lst.add(1, "")
+    lst.add(0, "")
+    lst.add(-2, "")
+    lst.add(2, "")
+
     print(lst.size())
     # 删除元素
-    print("Before remove:")
+    print("翻转前:")
     print(lst.to_list())
+    print("翻转后:")
+    print(lst.reverse())
+
+
     lst.remove(2)
     print("After remove:")
     print(lst.to_list())
