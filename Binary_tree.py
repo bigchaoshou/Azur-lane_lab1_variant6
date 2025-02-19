@@ -72,8 +72,9 @@ class BSTDictionary:
     # remove
     def remove(self, key):
         """删除 key 并维护 BST 结构"""
-        self.root = self._delete_recursive(self.root, key)
-        self._size -= 1
+        if self.search(key) is not None:  # 只有 key 存在才减少 size
+            self.root = self._delete_recursive(self.root, key)
+            self._size -= 1
 
     def _delete_recursive(self, node, key):
         if node is None:
@@ -152,7 +153,7 @@ class BSTDictionary:
         """对字典中的每个元素应用指定的函数"""
         result = []
         self._map_recursive(self.root, func, result)
-        return BSTDictionary.from_list(result)
+        return result
 
     def _map_recursive(self, node, func, result):
         if node:
