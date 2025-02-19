@@ -5,6 +5,7 @@ class BSTNode:
         self.left = None
         self.right = None
 
+
 class BSTDictionary:
     def __init__(self):
         self.root = None
@@ -14,32 +15,28 @@ class BSTDictionary:
     def size(self):
         return self._size
 
+    # add
     def add(self, key, value):
-        """插入键值对，仅在键不存在时增加大小"""
+        """在字典中插入键值对"""
         if self.root is None:
             self.root = BSTNode(key, value)
-            self._size += 1
-            return
-        # 递归插入，返回是否插入了新节点
-        if self._add_recursive(self.root, key, value):
-            self._size += 1
+        else:
+            self._add_recursive(self.root, key, value)
+        self._size += 1
 
     def _add_recursive(self, node, key, value):
         if key < node.key:
             if node.left is None:
                 node.left = BSTNode(key, value)
-                return True  # 新节点插入成功
             else:
-                return self._add_recursive(node.left, key, value)
+                self._add_recursive(node.left, key, value)
         elif key > node.key:
             if node.right is None:
                 node.right = BSTNode(key, value)
-                return True  # 新节点插入成功
             else:
-                return self._add_recursive(node.right, key, value)
+                self._add_recursive(node.right, key, value)
         else:
-            node.value = value  # 更新现有键的值
-            return False  # 未插入新节点
+            node.value = value  # 如果 key 已存在，更新 value
 
     # search
     def search(self, key):
@@ -55,7 +52,6 @@ class BSTDictionary:
         else:
             return self._search_recursive(node.right, key)
 
-
     # set
     def set(self, key, new_value):
         """更新 key 的 value"""
@@ -65,42 +61,29 @@ class BSTDictionary:
 
     # remove
     def remove(self, key):
-
-        self.root, deleted = self._delete_recursive(self.root, key)
-        if deleted:
-            self._size -= 1
+        """删除 key 并维护 BST 结构"""
+        self.root = self._delete_recursive(self.root, key)
+        self._size -= 1
 
     def _delete_recursive(self, node, key):
         if node is None:
-            return node, False  # 未找到 key，返回 False
-
-        deleted = False
+            return node
         if key < node.key:
-            node.left, deleted = self._delete_recursive(node.left, key)
+            node.left = self._delete_recursive(node.left, key)
         elif key > node.key:
-            node.right, deleted = self._delete_recursive(node.right, key)
+            node.right = self._delete_recursive(node.right, key)
         else:
-            # 找到 key，删除节点
             if node.left is None:
-                return node.right, True  # 删除成功
+                return node.right
             elif node.right is None:
-                return node.left, True
-            # 找到右子树的最小节点替换
+                return node.left
             temp = self._find_min(node.right)
             node.key, node.value = temp.key, temp.value
-            # 删除右子树中的原最小节点
-            node.right, _ = self._delete_recursive(node.right, temp.key)
-            deleted = True
-        return node, deleted
-
-    def _find_min(self, node):
-        """找到子树的最小节点"""
-        while node.left is not None:
-            node = node.left
+            node.right = self._delete_recursive(node.right, temp.key)
         return node
 
     # member
-    def is_member(self, value):
+    def member(self, value):
         """检查是否有节点的值等于给定值"""
         return self._member_recursive(self.root, value)
 
@@ -149,10 +132,9 @@ class BSTDictionary:
 
     def _filter_recursive(self, node, predicate, result):
         if node:
-
-            self._filter_recursive(node.left, predicate, result)
             if predicate(node.key, node.value):
                 result.append((node.key, node.value))
+            self._filter_recursive(node.left, predicate, result)
             self._filter_recursive(node.right, predicate, result)
 
     # map
@@ -164,8 +146,8 @@ class BSTDictionary:
 
     def _map_recursive(self, node, func, result):
         if node:
-            self._map_recursive(node.left, func, result)
             result.append(func(node.key, node.value))
+            self._map_recursive(node.left, func, result)
             self._map_recursive(node.right, func, result)
 
     # reduce
@@ -210,13 +192,68 @@ class BSTDictionary:
 
     # concat
     def concat(self, other):
-        """将另一个 BSTDictionary 合并到当前字典，覆盖重复的键"""
+        """将另一个 BSTDictionary 合并到当前字典中，保留已有 key"""
         if not isinstance(other, BSTDictionary) or other.root is None:
             return
-        def add_or_update(node):
+
+        def add_if_absent(node):
             if node is not None:
-                # 无论键是否存在，直接调用 add 方法（已存在的键会更新值）
-                self.add(node.key, node.value)
-                add_or_update(node.left)
-                add_or_update(node.right)
-        add_or_update(other.root)
+                if self.search(node.key) is None:
+                    self.add(node.key, node.value)
+                add_if_absent(node.left)
+                add_if_absent(node.right)
+
+        add_if_absent(other.root)
+
+
+# 测试代码
+if __name__ == "__main__":
+    lst = BSTDictionary()
+    lst.add(1, "A")
+    lst.add(2, "B")
+    lst.add(3, "C")
+
+    # 删除元素
+    print("Before remove:")
+    print(lst.to_list())
+    lst.remove(2)
+    print("After remove:")
+    print(lst.to_list())
+
+    # 过滤
+    print("\nFiltered (even keys):")
+    even = lst.filter(lambda k, v: k % 2 == 0)
+    print(even)
+
+    # 映射
+    print("\nMapped (increment keys by 1):")
+    incremented = lst.map(lambda k, v: (k + 1, v))
+    print(incremented)
+
+    # 归约
+    print("\nReduced (sum of keys):")
+    total = lst.reduce(lambda acc, k, v: acc + k, 0)
+    print(total)
+
+    # 反转
+    print("\nReversed List:")
+    reversed_lst = lst.reverse()
+    print(reversed_lst)
+
+    # 转换为列表
+    print("\nList form:")
+    lst_list = lst.to_list()
+    print(lst_list)
+
+    # 创建空字典
+    empty_dict = BSTDictionary.empty()
+    print("\nEmpty dictionary:")
+    print(empty_dict.to_list())
+
+    # 合并字典
+    print("\nConcatenate with another dictionary:")
+    lst2 = BSTDictionary()
+    lst2.add(4, "D")
+    lst2.add(5, "E")
+    lst.concat(lst2)
+    print(lst.to_list())
