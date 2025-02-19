@@ -28,7 +28,7 @@ class BSTDictionary:
             else:
                 self._add_recursive(node.right, key, value)
         else:
-            node.value = value  # 如果键已存在，更新值
+            node.value = value  # 如果 key 已存在，更新 value
 
     # toList
     def to_list(self):
@@ -57,8 +57,7 @@ class BSTDictionary:
     # reduce
     def reduce(self, func, initial_state):
         """对所有 (key, value) 进行 reduce 计算"""
-        state = initial_state
-        return self._reduce_recursive(self.root, func, state)
+        return self._reduce_recursive(self.root, func, initial_state)
 
     def _reduce_recursive(self, node, func, state):
         if node is not None:
@@ -117,7 +116,6 @@ class BSTDictionary:
             node.value = new_value
 
     # is a member
-    # is a member
     def member(self, value):
         """检查是否有节点的值等于给定值"""
         return self._member_recursive(self.root, value)
@@ -142,6 +140,41 @@ class BSTDictionary:
             result.append((node.key, node.value))
             self._inorder_recursive(node.right, result)
 
+    # concat (合并 BST，但不覆盖已有的 key)
+    def concat(self, other):
+        """将另一个 BSTDictionary 合并到当前字典中，保留已有 key"""
+        def add_if_absent(node):
+            if node is not None:
+                if self.search(node.key) is None:  # 只有 key 不存在才添加
+                    self.add(node.key, node.value)
+                add_if_absent(node.left)
+                add_if_absent(node.right)
+
+        add_if_absent(other.root)
+
+    # iterator
+    def iter_from(self, start_key):
+        """从 `start_key` 开始进行中序遍历"""
+        stack = []
+        node = self.root
+        found = False
+
+        while stack or node:
+            while node:
+                stack.append(node)
+                node = node.left
+
+            node = stack.pop()
+
+            if node.key >= start_key:
+                found = True
+
+            if found:
+                yield (node.key, node.value)
+
+            node = node.right
+
+
 class BSTNode:
     def __init__(self, key, value):
         self.key = key
@@ -149,9 +182,23 @@ class BSTNode:
         self.left = None
         self.right = None
 
-if __name__ == '__main__':
-    d = BSTDictionary()
-    d.add(1,2)
-    print(d.member(2))
-    print(d.size())
 
+# 示例使用
+if __name__ == '__main__':
+    d1 = BSTDictionary()
+    d1.add(1, 2)
+    d1.add(3, 4)
+
+    d2 = BSTDictionary()
+    d2.add(2, 3)
+    d2.add(4, 5)
+    d2.add(3, 5)
+    # 使用 concat 合并字典
+    d1.concat(d2)
+
+    # 使用 iterator 迭代
+    print("=== 从 key = 3 开始迭代 ===")
+    for key, value in d1.iter_from(3):
+        print(f"Key: {key}, Value: {value}")
+
+    print(f"合并后的字典大小: {d1.size()}")
