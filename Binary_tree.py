@@ -153,7 +153,7 @@ class BSTDictionary:
         """对字典中的每个元素应用指定的函数"""
         result = []
         self._map_recursive(self.root, func, result)
-        return result
+        return BSTDictionary.from_list(result).to_list()
 
     def _map_recursive(self, node, func, result):
         if node:
