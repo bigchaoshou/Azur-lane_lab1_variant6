@@ -139,7 +139,7 @@ class BSTDictionary:
         """根据给定的条件过滤元素"""
         result = []
         self._filter_recursive(self.root, predicate, result)
-        return sorted(result,key=lambda x:x[0])
+        return sorted(result, key=lambda x: x[0])
 
     def _filter_recursive(self, node, predicate, result):
         if node:
@@ -229,7 +229,6 @@ if __name__ == "__main__":
     print(lst.to_list())
     print("翻转后:")
     print(lst.reverse())
-
 
     lst.remove(2)
     print("After remove:")
