@@ -6,6 +6,7 @@ keys = st.integers()
 values = st.text()
 key_value_pairs = st.tuples(keys, values)
 
+
 # 测试 add 和 size 方法
 @given(pairs=st.lists(key_value_pairs))
 def test_add_size(pairs):
@@ -25,7 +26,9 @@ def test_add_size(pairs):
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_search(pairs, key):
     d = BSTDictionary.from_list(pairs)
-    expected = next((v for k, v in reversed(pairs) if k == key), None)
+    expected = next(
+        (v for k, v in reversed(pairs) if k == key), None
+    )
     assert d.search(key) == expected
 
 
