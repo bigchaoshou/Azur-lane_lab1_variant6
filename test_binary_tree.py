@@ -59,7 +59,7 @@ def test_member(pairs, value):
     for k, v in pairs:
         unique_pairs[k] = v  #
     values_in_dict = set(unique_pairs.values())
-    assert d.is_member(value) == (value in values_in_dict)
+    assert d.member(value) == (value in values_in_dict)
 
 # 测试 from_list 和 to_list 方法
 @given(pairs=st.lists(key_value_pairs))

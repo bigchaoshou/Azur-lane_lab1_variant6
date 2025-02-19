@@ -17,26 +17,30 @@ class BSTDictionary:
 
     # add
     def add(self, key, value):
-        """在字典中插入键值对"""
+        """在字典中插入键值对，若键已存在则更新值，不增加 size"""
         if self.root is None:
             self.root = BSTNode(key, value)
+            self._size += 1
         else:
-            self._add_recursive(self.root, key, value)
-        self._size += 1
+            if not self._add_recursive(self.root, key, value):
+                self._size += 1
 
     def _add_recursive(self, node, key, value):
         if key < node.key:
             if node.left is None:
                 node.left = BSTNode(key, value)
+                return True  # 新增键值对
             else:
-                self._add_recursive(node.left, key, value)
+                return self._add_recursive(node.left, key, value)
         elif key > node.key:
             if node.right is None:
                 node.right = BSTNode(key, value)
+                return True  # 新增键值对
             else:
-                self._add_recursive(node.right, key, value)
+                return self._add_recursive(node.right, key, value)
         else:
-            node.value = value  # 如果 key 已存在，更新 value
+            node.value = value  # 如果键已存在，更新值
+            return False  # 不增加 size
 
     # search
     def search(self, key):
@@ -212,7 +216,9 @@ if __name__ == "__main__":
     lst.add(1, "A")
     lst.add(2, "B")
     lst.add(3, "C")
-
+    lst.add(1, "")
+    lst.add(1, "")
+    print(lst.size())
     # 删除元素
     print("Before remove:")
     print(lst.to_list())
