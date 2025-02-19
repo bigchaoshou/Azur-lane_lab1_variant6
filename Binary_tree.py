@@ -208,7 +208,7 @@ class BSTDictionary:
 
         def add_or_update(node):
             if node is not None:
-                self.set(node.key, node.value)  # 允许覆盖已有 key
+                self.add(node.key, node.value)  # 允许覆盖已有 key
                 add_or_update(node.left)
                 add_or_update(node.right)
 
