@@ -103,7 +103,8 @@ class BSTDictionary:
             return False
         if node.value == value:
             return True
-        return self._member_recursive(node.left, value) or self._member_recursive(node.right, value)
+        return (self._member_recursive(node.left, value) or
+                self._member_recursive(node.right, value))
 
     # reverse
     def reverse(self):
