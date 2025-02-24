@@ -3,9 +3,10 @@
 
 ## Project structure
 
-- `Binary_tree.py` -- implementation of `Binary tree` class with `add`, `set`, `remove`, `search`,  `returnsize`, 
--  `is_member`, `reverse`, `fromlist`, `tolist`, `filter`, `map`, `reduce_process`, `iterator`, `is_empty`, `concat`
-- features.
+- `Binary_tree.py` -- implementation of `Binary tree` class with `add`
+  `set`, `remove`, `search`, `returnsize`, `is_member`, `reverse`,
+  `fromlist`, `tolist`, `filter`, `map`, `reduce_process`, `iterator`
+  `is_empty`, `concat` features.
 - `Binary tree_test.py` -- Unit tests for the Binary tree class.
 
 ## Features
@@ -35,7 +36,8 @@
 - **reduce**
   Apply a particular function passed in its argument to all the elements.
 - **iterator**
-  Return an element of structure and when use the function again return the next one according to key.
+  Return an element of structure and when use the function again return the
+  next one according to key.
 - **empty**
   Decide if the structure is empty.
 - **concat**
