@@ -1,6 +1,5 @@
 # Azur lane - lab 1 - variant 6
 
-
 ## Project structure
 
 - `Binary_tree.py` -- implementation of `Binary tree` class with `add`
