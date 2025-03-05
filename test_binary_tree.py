@@ -131,7 +131,7 @@ def test_concat(pairs1, pairs2):
 
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),
        pairs3=st.lists(key_value_pairs))
-def test_concat2(pairs1, pairs2, pairs3):
+def test_concat3(pairs1, pairs2, pairs3):
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
     d3 = BSTDictionary.from_list(pairs3)
