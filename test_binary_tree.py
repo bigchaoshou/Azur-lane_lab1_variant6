@@ -1,13 +1,11 @@
 import pytest
 from hypothesis import given, strategies as st
-from Binary_tree import BSTDictionary
+from binary_tree import BSTDictionary
 
 keys = st.integers()
 values = st.text()
 key_value_pairs = st.tuples(keys, values)
 
-
-# 测试 add 和 size 方法
 @given(pairs=st.lists(key_value_pairs))
 def test_add_size(pairs):
     d = BSTDictionary()
@@ -22,7 +20,7 @@ def test_add_size(pairs):
         assert d.size() == expected_size
 
 
-# 测试 search 方法
+
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_search(pairs, key):
     d = BSTDictionary.from_list(pairs)
@@ -32,7 +30,7 @@ def test_search(pairs, key):
     assert d.search(key) == expected
 
 
-# 测试 set 方法
+
 @given(pairs=st.lists(key_value_pairs), key=st.integers(), new_value=st.text())
 def test_set(pairs, key, new_value):
     d = BSTDictionary.from_list(pairs)
@@ -44,7 +42,7 @@ def test_set(pairs, key, new_value):
         assert d.search(key) is None
 
 
-# 测试 remove 方法
+
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_remove(pairs, key):
     d = BSTDictionary.from_list(pairs)
@@ -58,7 +56,7 @@ def test_remove(pairs, key):
         assert d.size() == original_size
 
 
-# 测试 member 方法
+
 @given(pairs=st.lists(key_value_pairs), value=st.text())
 def test_member(pairs, value):
     d = BSTDictionary.from_list(pairs)
@@ -69,7 +67,7 @@ def test_member(pairs, value):
     assert d.member(value) == (value in values_in_dict)
 
 
-# 测试 from_list 和 to_list 方法
+
 @given(pairs=st.lists(key_value_pairs))
 def test_from_list_to_list(pairs):
     d = BSTDictionary.from_list(pairs)
@@ -80,7 +78,6 @@ def test_from_list_to_list(pairs):
     assert d.to_list() == sorted_pairs
 
 
-# 测试 reverse 方法
 @given(pairs=st.lists(key_value_pairs))
 def test_reverse(pairs):
     d = BSTDictionary.from_list(pairs)
@@ -88,7 +85,7 @@ def test_reverse(pairs):
     assert d.reverse() == expected
 
 
-# 测试 filter 方法
+
 @given(pairs=st.lists(key_value_pairs))
 def test_filter(pairs):
     d = BSTDictionary.from_list(pairs)
@@ -97,7 +94,7 @@ def test_filter(pairs):
     assert filtered == expected
 
 
-# 测试 map 方法
+
 @given(pairs=st.lists(key_value_pairs))
 def test_map(pairs):
     d = BSTDictionary.from_list(pairs)
@@ -106,7 +103,7 @@ def test_map(pairs):
     assert mapped == expected
 
 
-# 测试 reduce 方法
+
 @given(pairs=st.lists(key_value_pairs))
 def test_reduce(pairs):
     d = BSTDictionary.from_list(pairs)
@@ -115,7 +112,7 @@ def test_reduce(pairs):
     assert sum_keys == expected
 
 
-# 测试迭代器
+
 @given(pairs=st.lists(key_value_pairs))
 def test_iterator(pairs):
     d = BSTDictionary.from_list(pairs)
@@ -123,14 +120,14 @@ def test_iterator(pairs):
     assert via_iterator == d.to_list()
 
 
-# 测试 empty 方法
+
 def test_empty():
     d = BSTDictionary.empty()
     assert d.size() == 0
     assert d.to_list() == []
 
 
-# 测试 concat 方法
+
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs))
 def test_concat(pairs1, pairs2):
     d1 = BSTDictionary.from_list(pairs1)
@@ -141,5 +138,26 @@ def test_concat(pairs1, pairs2):
     assert d1.to_list() == expected
 
 
-if __name__ == "__main__":
-    pytest.main()
+
+@given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),pairs3=st.lists(key_value_pairs))
+def test_concat2(pairs1, pairs2, pairs3):
+    d1 = BSTDictionary.from_list(pairs1)
+    d2 = BSTDictionary.from_list(pairs2)
+    d3 = BSTDictionary.from_list(pairs3)
+    concat1 = d1.concat(d2)
+    concat2 = concat1.concat(d3)
+    concat3 = d2.concat(d3)
+    concat4 = d1.concat(concat3)
+    assert concat2.to_list() == concat4.to_list()
+
+
+
+@given(pairs1=st.lists(key_value_pairs))
+def test_monoid(pairs1,):
+    d1 = BSTDictionary.from_list(pairs1)
+    e = BSTDictionary.from_list([])
+    concat1 = d1.concat(e)
+    concat2 = e.concat(d1)
+    assert concat1.to_list() == concat2.to_list() == d1.to_list()
+
+
