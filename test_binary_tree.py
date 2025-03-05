@@ -2,9 +2,11 @@ import pytest
 from hypothesis import given, strategies as st
 from binary_tree import BSTDictionary
 
+
 keys = st.integers()
 values = st.text()
 key_value_pairs = st.tuples(keys, values)
+
 
 @given(pairs=st.lists(key_value_pairs))
 def test_add_size(pairs):
@@ -20,7 +22,6 @@ def test_add_size(pairs):
         assert d.size() == expected_size
 
 
-
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_search(pairs, key):
     d = BSTDictionary.from_list(pairs)
@@ -28,7 +29,6 @@ def test_search(pairs, key):
         (v for k, v in reversed(pairs) if k == key), None
     )
     assert d.search(key) == expected
-
 
 
 @given(pairs=st.lists(key_value_pairs), key=st.integers(), new_value=st.text())
@@ -40,7 +40,6 @@ def test_set(pairs, key, new_value):
         assert d.search(key) == new_value
     else:
         assert d.search(key) is None
-
 
 
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
@@ -56,7 +55,6 @@ def test_remove(pairs, key):
         assert d.size() == original_size
 
 
-
 @given(pairs=st.lists(key_value_pairs), value=st.text())
 def test_member(pairs, value):
     d = BSTDictionary.from_list(pairs)
@@ -65,7 +63,6 @@ def test_member(pairs, value):
         unique_pairs[k] = v  #
     values_in_dict = set(unique_pairs.values())
     assert d.member(value) == (value in values_in_dict)
-
 
 
 @given(pairs=st.lists(key_value_pairs))
@@ -85,14 +82,12 @@ def test_reverse(pairs):
     assert d.reverse() == expected
 
 
-
 @given(pairs=st.lists(key_value_pairs))
 def test_filter(pairs):
     d = BSTDictionary.from_list(pairs)
     filtered = d.filter(lambda k, v: k % 2 == 0)
     expected = [(k, v) for k, v in d.to_list() if k % 2 == 0]
     assert filtered == expected
-
 
 
 @given(pairs=st.lists(key_value_pairs))
@@ -103,14 +98,12 @@ def test_map(pairs):
     assert mapped == expected
 
 
-
 @given(pairs=st.lists(key_value_pairs))
 def test_reduce(pairs):
     d = BSTDictionary.from_list(pairs)
     sum_keys = d.reduce(lambda acc, k, v: acc + k, 0)
     expected = sum(k for k, _ in d.to_list())
     assert sum_keys == expected
-
 
 
 @given(pairs=st.lists(key_value_pairs))
@@ -120,12 +113,10 @@ def test_iterator(pairs):
     assert via_iterator == d.to_list()
 
 
-
 def test_empty():
     d = BSTDictionary.empty()
     assert d.size() == 0
     assert d.to_list() == []
-
 
 
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs))
@@ -138,8 +129,8 @@ def test_concat(pairs1, pairs2):
     assert d1.to_list() == expected
 
 
-
-@given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),pairs3=st.lists(key_value_pairs))
+@given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),
+       pairs3=st.lists(key_value_pairs))
 def test_concat2(pairs1, pairs2, pairs3):
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
@@ -149,7 +140,6 @@ def test_concat2(pairs1, pairs2, pairs3):
     concat3 = d2.concat(d3)
     concat4 = d1.concat(concat3)
     assert concat2.to_list() == concat4.to_list()
-
 
 
 @given(pairs1=st.lists(key_value_pairs))
