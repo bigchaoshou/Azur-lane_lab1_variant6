@@ -149,5 +149,3 @@ def test_monoid(pairs1,):
     concat1 = d1.concat(e)
     concat2 = e.concat(d1)
     assert concat1.to_list() == concat2.to_list() == d1.to_list()
-
-

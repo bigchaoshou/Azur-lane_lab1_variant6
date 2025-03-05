@@ -11,10 +11,8 @@ class BSTDictionary:
         self.root = None
         self._size = 0
 
-
     def size(self):
         return self._size
-
 
     def add(self, key, value):
         if self.root is None:
@@ -23,7 +21,6 @@ class BSTDictionary:
         else:
             if self._add_recursive(self.root, key, value):
                 self._size += 1
-
 
     def _add_recursive(self, node, key, value):
         if key < node.key:
@@ -42,17 +39,14 @@ class BSTDictionary:
             node.value = value
             return False
 
-
     def _find_min(self, node):
         while node.left is not None:
             node = node.left
         return node
 
-
     def search(self, key):
         node = self._search_recursive(self.root, key)
         return node.value if node else None
-
 
     def _search_recursive(self, node, key):
         if node is None or node.key == key:
@@ -62,18 +56,15 @@ class BSTDictionary:
         else:
             return self._search_recursive(node.right, key)
 
-
     def set(self, key, new_value):
         node = self._search_recursive(self.root, key)
         if node:
             node.value = new_value
 
-
     def remove(self, key):
         if self.search(key) is not None:
             self.root = self._delete_recursive(self.root, key)
             self._size -= 1
-
 
     def _delete_recursive(self, node, key):
         if node is None:
@@ -92,10 +83,8 @@ class BSTDictionary:
             node.right = self._delete_recursive(node.right, temp.key)
         return node
 
-
     def member(self, value):
         return self._member_recursive(self.root, value)
-
 
     def _member_recursive(self, node, value):
         if node is None:
@@ -105,12 +94,10 @@ class BSTDictionary:
         return (self._member_recursive(node.left, value) or
                 self._member_recursive(node.right, value))
 
-
     def reverse(self):
         result = []
         self._inorder_traversal(self.root, result)
         return result[::-1]
-
 
     @classmethod
     def from_list(cls, lst):
@@ -119,12 +106,10 @@ class BSTDictionary:
             bst_dict.add(key, value)
         return bst_dict
 
-
     def to_list(self):
         result = []
         self._inorder_traversal(self.root, result)
         return result
-
 
     def _inorder_traversal(self, node, result):
         if node is not None:
@@ -132,12 +117,10 @@ class BSTDictionary:
             result.append((node.key, node.value))
             self._inorder_traversal(node.right, result)
 
-
     def filter(self, predicate):
         result = []
         self._filter_recursive(self.root, predicate, result)
         return sorted(result, key=lambda x: x[0])
-
 
     def _filter_recursive(self, node, predicate, result):
         if node:
@@ -146,12 +129,10 @@ class BSTDictionary:
             self._filter_recursive(node.left, predicate, result)
             self._filter_recursive(node.right, predicate, result)
 
-
     def map(self, func):
         result = []
         self._map_recursive(self.root, func, result)
         return BSTDictionary.from_list(result).to_list()
-
 
     def _map_recursive(self, node, func, result):
         if node:
@@ -159,10 +140,8 @@ class BSTDictionary:
             self._map_recursive(node.left, func, result)
             self._map_recursive(node.right, func, result)
 
-
     def reduce(self, func, initial_value):
         return self._reduce_recursive(self.root, func, initial_value)
-
 
     def _reduce_recursive(self, node, func, value):
         if node is None:
@@ -172,12 +151,10 @@ class BSTDictionary:
         value = self._reduce_recursive(node.right, func, value)
         return value
 
-
     def __iter__(self):
         self._iter_stack = []
         self._push_left(self.root)
         return self
-
 
     def __next__(self):
         if not self._iter_stack:
@@ -186,22 +163,18 @@ class BSTDictionary:
         self._push_left(node.right)
         return node.key, node.value
 
-
     def _push_left(self, node):
         while node:
             self._iter_stack.append(node)
             node = node.left
 
-
     @classmethod
     def empty(cls):
         return cls()
 
-
     def concat(self, other):
         if not isinstance(other, BSTDictionary) or other.root is None:
             return self
-
 
         def add_or_update(node):
             if node is not None:
