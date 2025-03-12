@@ -191,3 +191,4 @@ class BSTDictionary:
                 add_other_tree(node.right)
         add_other_tree(other.root)
         return new
+    
