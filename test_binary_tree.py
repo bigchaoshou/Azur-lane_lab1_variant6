@@ -122,10 +122,10 @@ def test_empty():
 def test_concat(pairs1, pairs2):
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
-    d1.concat(d2)
+    concat1 = d1.concat(d2)
     combined = {k: v for k, v in d1.to_list() + d2.to_list()}
     expected = sorted(combined.items(), key=lambda x: x[0])
-    assert d1.to_list() == expected
+    assert concat1.to_list() == expected
 
 
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),
