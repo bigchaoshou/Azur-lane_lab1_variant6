@@ -176,12 +176,14 @@ class BSTDictionary:
         if not isinstance(other, BSTDictionary) or other.root is None:
             return self
         new = BSTDictionary()
+
         def copy_tree(node):
             if node is not None:
                 new.add(node.key, node.value)
                 copy_tree(node.left)
                 copy_tree(node.right)
         copy_tree(self.root)
+
         def add_other_tree(node):
             if node is not None:
                 new.add(node.key, node.value)
@@ -189,5 +191,3 @@ class BSTDictionary:
                 add_other_tree(node.right)
         add_other_tree(other.root)
         return new
-
-
