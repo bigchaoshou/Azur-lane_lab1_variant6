@@ -168,18 +168,40 @@ class BSTDictionary:
             self._iter_stack.append(node)
             node = node.left
 
-    @classmethod
-    def empty(cls):
-        return cls()
+    @staticmethod
+    def empty():
+        return BSTDictionary()
 
     def concat(self, other):
         if not isinstance(other, BSTDictionary) or other.root is None:
             return self
-
-        def add_or_update(node):
+        new = BSTDictionary()
+        def copy_tree(node):
             if node is not None:
-                self.add(node.key, node.value)
-                add_or_update(node.left)
-                add_or_update(node.right)
+                new.add(node.key, node.value)
+                copy_tree(node.left)
+                copy_tree(node.right)
+
+        copy_tree(self.root)
+
+        def add_other_tree(node):
+            """递归插入 other 的所有节点"""
+            if node is not None:
+                new.add(node.key, node.value)
+                add_other_tree(node.left)
+                add_other_tree(node.right)
+
+        add_other_tree(other.root)
+        return new
+
+
+
+
         add_or_update(other.root)
-        return self
+if __name__ == '__main__':
+    d1 = BSTDictionary.from_list([(1, "a"), (2, "b")])
+    d2 = BSTDictionary.from_list([(3, "a"), (4, "b")])
+    d3 = d1.concat(d2)
+    print(d1.to_list())
+
+    print(d3.to_list())
