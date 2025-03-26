@@ -2,17 +2,20 @@ from __future__ import annotations
 from typing import (
     Any, Optional, Callable, List, Tuple,
     Iterator, Iterable, Generic, TypeVar,
-    Union, Mapping, SupportsRichComparison
+    Union, Mapping
 )
+from typing_extensions import Protocol  # 新增导入
 
 
-KT = TypeVar(
-    "KT",
-    bound=SupportsRichComparison
-)
-VT = TypeVar('VT')
-AccT = TypeVar('AccT')
+class SupportsRichComparison(Protocol):
+    def __lt__(self, other: Any) -> bool: ...
+    def __le__(self, other: Any) -> bool: ...
+    def __gt__(self, other: Any) -> bool: ...
+    def __ge__(self, other: Any) -> bool: ...
 
+KT = TypeVar("KT", bound=SupportsRichComparison)  # 键类型需支持比较
+VT = TypeVar("VT")  # 值类型无约束
+AccT = TypeVar("AccT")
 
 class DictDictionary(Generic[KT, VT]):
     def __init__(self) -> None:
