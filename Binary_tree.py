@@ -13,9 +13,11 @@ class SupportsRichComparison(Protocol):
     def __gt__(self, other: Any) -> bool: ...
     def __ge__(self, other: Any) -> bool: ...
 
-KT = TypeVar("KT", bound=SupportsRichComparison)  # 键类型需支持比较
+
+KT = TypeVar("KT", bound=SupportsRichComparison)
 VT = TypeVar("VT")  # 值类型无约束
 AccT = TypeVar("AccT")
+
 
 class DictDictionary(Generic[KT, VT]):
     def __init__(self) -> None:
