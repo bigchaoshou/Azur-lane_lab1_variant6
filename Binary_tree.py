@@ -70,8 +70,13 @@ class DictDictionary(Generic[KT, VT]):
             func: Callable[[KT, VT], Tuple[Any, Any]]
     ) -> List[Tuple[Any, Any]]:
         """Apply function to each entry"""
-        return [func(k, v) for k, v in sorted(self._dict.items(), key=lambda x: x[0])]
-
+        return [
+            func(k, v)
+            for k, v in sorted(
+                self._dict.items(),
+                key=lambda x: x[0]
+            )
+        ]
     def reduce(
             self,
             func: Callable[[AccT, KT, VT], AccT],
@@ -99,9 +104,16 @@ class DictDictionary(Generic[KT, VT]):
         """Merge two dictionaries"""
         new_dict = DictDictionary[KT, VT]()
         new_dict._dict = self._dict.copy()
-        new_dict._dict.update(dict(other.items()) if isinstance(other, Mapping) else other._dict)
+        new_dict._dict.update(
+            dict(other.items())
+            if isinstance(other, Mapping)  # 条件判断独立成行
+            else other._dict
+        )
         return new_dict
 
     def items(self) -> Iterable[Tuple[KT, VT]]:
         """Get sorted items view"""
-        return sorted(self._dict.items(), key=lambda x: x[0])
+        return sorted(
+            self._dict.items(),
+            key=lambda x: x[0]
+        )
