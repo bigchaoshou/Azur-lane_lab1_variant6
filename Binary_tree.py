@@ -77,6 +77,7 @@ class DictDictionary(Generic[KT, VT]):
                 key=lambda x: x[0]
             )
         ]
+
     def reduce(
             self,
             func: Callable[[AccT, KT, VT], AccT],
@@ -106,7 +107,7 @@ class DictDictionary(Generic[KT, VT]):
         new_dict._dict = self._dict.copy()
         new_dict._dict.update(
             dict(other.items())
-            if isinstance(other, Mapping)  # 条件判断独立成行
+            if isinstance(other, Mapping)
             else other._dict
         )
         return new_dict
