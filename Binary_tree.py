@@ -2,10 +2,11 @@ from __future__ import annotations
 from typing import (
     Any, Optional, Callable, List, Tuple,
     Iterator, Iterable, Generic, TypeVar,
-    Union, Mapping
+    Union, Mapping, SupportsRichComparison
 )
 
-KT = TypeVar('KT')  # Key Type (must be hashable)
+
+KT = TypeVar("KT", bound=SupportsRichComparison)  # 关键修改  # Key Type (must be hashable)
 VT = TypeVar('VT')  # Value Type
 AccT = TypeVar('AccT')  # Accumulator Type for reduce
 
