@@ -6,9 +6,12 @@ from typing import (
 )
 
 
-KT = TypeVar("KT", bound=SupportsRichComparison)  # 关键修改  # Key Type (must be hashable)
-VT = TypeVar('VT')  # Value Type
-AccT = TypeVar('AccT')  # Accumulator Type for reduce
+KT = TypeVar(
+    "KT",
+    bound=SupportsRichComparison
+)
+VT = TypeVar('VT')
+AccT = TypeVar('AccT')
 
 
 class DictDictionary(Generic[KT, VT]):
