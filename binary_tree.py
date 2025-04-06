@@ -1,3 +1,10 @@
+from typing import Any, Optional, List, Tuple, Callable, TypeVar, Iterator
+
+
+K = TypeVar('K')
+V = TypeVar('V')
+T = TypeVar('T')
+
 class BSTNode:
     def __init__(self, key, value):
         self.key = key
@@ -172,22 +179,32 @@ class BSTDictionary:
     def empty():
         return BSTDictionary()
 
-    def concat(self, other):
-        if not isinstance(other, BSTDictionary) or other.root is None:
-            return self
-        new = BSTDictionary()
-
-        def copy_tree(node):
-            if node is not None:
-                new.add(node.key, node.value)
-                copy_tree(node.left)
-                copy_tree(node.right)
+    # def concat(self, other):
+    #     if not isinstance(other, BSTDictionary) or other.root is None:
+    #         return self
+    #     new = BSTDictionary()
+    #
+    #     def copy_tree(node):
+    #         if node is not None:
+    #             new.add(node.key, node.value)
+    #             copy_tree(node.left)
+    #             copy_tree(node.right)
+    #     copy_tree(self.root)
+    #
+    #     def add_other_tree(node):
+    #         if node is not None:
+    #             new.add(node.key, node.value)
+    #             add_other_tree(node.left)
+    #             add_other_tree(node.right)
+    #     add_other_tree(other.root)
+    #     return new
+def concat(self, other):
+    if not isinstance(other, BSTDictionary) or other.root is None:
+        return self
+    new = BSTDictionary()
+    def copy_tree(node):
+        if node is not None:
+            new.add(node.key, node.value)
+        copy_tree(node.left)
+        copy_tree(node.right)
         copy_tree(self.root)
-
-        def add_other_tree(node):
-            if node is not None:
-                new.add(node.key, node.value)
-                add_other_tree(node.left)
-                add_other_tree(node.right)
-        add_other_tree(other.root)
-        return new
