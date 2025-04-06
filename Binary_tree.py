@@ -4,7 +4,7 @@ from typing import (
     Iterator, Iterable, Generic, TypeVar,
     Union, Mapping
 )
-from typing_extensions import Protocol  # 新增导入
+from typing_extensions import Protocol
 
 
 class SupportsRichComparison(Protocol):
@@ -15,7 +15,7 @@ class SupportsRichComparison(Protocol):
 
 
 KT = TypeVar("KT", bound=SupportsRichComparison)
-VT = TypeVar("VT")  # 值类型无约束
+VT = TypeVar("VT")
 AccT = TypeVar("AccT")
 
 
@@ -110,16 +110,14 @@ class DictDictionary(Generic[KT, VT]):
     def concat(
             self,
             other: Union[DictDictionary[KT, VT], Mapping[KT, VT]]
-    ) -> DictDictionary[KT, VT]:
-        """Merge two dictionaries"""
-        new_dict = DictDictionary[KT, VT]()
-        new_dict._dict = self._dict.copy()
-        new_dict._dict.update(
+    ) -> None:
+        """Merge another dictionary into this one (in-place)"""
+        other_dict = (
             dict(other.items())
             if isinstance(other, Mapping)
             else other._dict
         )
-        return new_dict
+        self._dict.update(other_dict)
 
     def items(self) -> Iterable[Tuple[KT, VT]]:
         """Get sorted items view"""
