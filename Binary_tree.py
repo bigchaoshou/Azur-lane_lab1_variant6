@@ -53,8 +53,9 @@ class BSTDictionary:
         node = self._search_recursive(self.root, key)
         return node['value'] if node else None
 
-    def _search_recursive(self, node: Optional[dict],
-                           key: K) -> Optional[dict]:
+    def _search_recursive(
+        self, node: Optional[dict], key: K
+    ) -> Optional[dict]:
         if node is None or node['key'] == key:
             return node
         elif key < node['key']:
@@ -72,8 +73,9 @@ class BSTDictionary:
             self.root = self._delete_recursive(self.root, key)
             self._size -= 1
 
-    def _delete_recursive(self, node: Optional[dict],
-                           key: K) -> Optional[dict]:
+    def _delete_recursive(
+        self, node: Optional[dict], key: K
+    ) -> Optional[dict]:
         if node is None:
             return node
         if key < node['key']:
