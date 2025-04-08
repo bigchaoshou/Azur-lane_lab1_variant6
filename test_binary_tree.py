@@ -122,10 +122,11 @@ def test_empty():
 def test_concat(pairs1, pairs2):
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
-    concat1 = d1.concat(d2)
-    combined = {k: v for k, v in d1.to_list() + d2.to_list()}
+    original_d1 = d1.to_list()
+    d1.concat(d2)
+    combined = dict(original_d1 + d2.to_list())
     expected = sorted(combined.items(), key=lambda x: x[0])
-    assert concat1.to_list() == expected
+    assert d1.to_list() == expected
 
 
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),
@@ -134,20 +135,24 @@ def test_concat3(pairs1, pairs2, pairs3):
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
     d3 = BSTDictionary.from_list(pairs3)
-    print(d1.to_list())
-    print(d2.to_list())
-    concat1 = d1.concat(d2)
-    print(concat1.to_list())
-    concat2 = concat1.concat(d3)
-    concat3 = d2.concat(d3)
-    concat4 = d1.concat(concat3)
-    assert concat2.to_list() == concat4.to_list()
+    d1.concat(d2)
+    d1.concat(d3)
+    result1 = d1.to_list()
+    d1_new = BSTDictionary.from_list(pairs1)
+    d2_d3 = BSTDictionary.from_list(pairs2)
+    d2_d3.concat(d3)
+    d1_new.concat(d2_d3)
+    result2 = d1_new.to_list()
+    assert result1 == result2
 
 
 @given(pairs1=st.lists(key_value_pairs))
-def test_monoid(pairs1,):
+def test_monoid(pairs1):
     d1 = BSTDictionary.from_list(pairs1)
     e = BSTDictionary.from_list([])
-    concat1 = d1.concat(e)
-    concat2 = e.concat(d1)
-    assert concat1.to_list() == concat2.to_list() == d1.to_list()
+    d1_copy = BSTDictionary.from_list(pairs1)  # 备份 d1
+    d1_copy.concat(e)
+    assert d1_copy.to_list() == d1.to_list()
+    e_copy = BSTDictionary.from_list([])
+    e_copy.concat(d1)
+    assert e_copy.to_list() == d1.to_list()
