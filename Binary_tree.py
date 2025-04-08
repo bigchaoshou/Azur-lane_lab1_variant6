@@ -60,22 +60,27 @@ class BinaryTreeDict(Generic[KT, VT]):
         return self.search(key) is not None
 
     def remove(self, key: KT) -> None:
+        """Remove a key-value pair (mutable operation)"""
         if self.is_empty():
             return
-
-        # 如果当前节点的键是 None，跳过
-        if self.node['key'] is None:
-            return
-
-        # 根据键值比较，递归删除
         if key < self.node['key']:
-            self.node['left'].remove(key)
+            if self.node['left']:
+                self.node['left'].remove(key)
         elif key > self.node['key']:
-            self.node['right'].remove(key)
+            if self.node['right']:
+                self.node['right'].remove(key)
         else:
-            # 找到了目标节点，执行删除操作
-            # 删除节点的具体处理代码（如替换、移除节点等）
-            pass
+            if self.node['left'] is None and self.node['right'] is None:
+                self.node = {'key': None, 'value': None, 'left': None, 'right': None}
+            elif self.node['left'] is None:
+                self.node = self.node['right'].node
+            elif self.node['right'] is None:
+                self.node = self.node['left'].node
+            else:
+                min_key, min_value = self.node['right']._find_min()
+                self.node['key'] = min_key
+                self.node['value'] = min_value
+                self.node['right'].remove(min_key)
 
     def _find_min(self) -> Tuple[KT, VT]:
         """Find the minimum key-value pair in the tree"""
@@ -136,7 +141,7 @@ class BinaryTreeDict(Generic[KT, VT]):
     def filter(self, f: Callable[[KT, VT], bool]) -> None:
         """Filter the tree by a predicate (mutable operation)"""
 
-        # 递归过滤当前节点及其子树
+        # 如果当前节点为空，直接返回
         if self.is_empty():
             return
 
@@ -146,7 +151,11 @@ class BinaryTreeDict(Generic[KT, VT]):
         if self.node['right']:
             self.node['right'].filter(f)
 
-        # 检查当前节点
+        # 如果当前节点的 key 或 value 是 None，则跳过
+        if self.node['key'] is None or self.node['value'] is None:
+            return
+
+        # 检查当前节点是否满足过滤条件
         if not f(self.node['key'], self.node['value']):
             # 如果当前节点不满足条件，删除它
             self.remove(self.node['key'])
