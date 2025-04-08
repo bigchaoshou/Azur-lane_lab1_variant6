@@ -49,7 +49,7 @@
 
 ## Changelog
 
-- 20.02.2025 - 1  
+- 20.02.2025 - 2  
    - Update test_binary_tree.py.
 - 13.02.2025 - 1  
    - Update README. Add Binary_tree.py.
