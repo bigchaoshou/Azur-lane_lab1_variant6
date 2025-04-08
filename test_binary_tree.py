@@ -74,8 +74,8 @@ def test_filter(pairs):
 @given(pairs=st.lists(key_value_pairs))
 def test_map(pairs):
     tree = from_list(pairs)
-    tree.map(lambda k, v: (k + 1, v.upper()))
     expected = [(k + 1, v.upper()) for k, v in to_list(tree)]
+    tree.map(lambda k, v: (k + 1, v.upper()))
     assert to_list(tree) == expected
 
 
