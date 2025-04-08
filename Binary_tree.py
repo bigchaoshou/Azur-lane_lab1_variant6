@@ -77,10 +77,11 @@ class BinaryTreeDict(Generic[KT, VT]):
             elif self.node['right'] is None:
                 self.node = self.node['left'].node
             else:
-                min_key, min_value = self.node['right']._find_min()
-                self.node['key'] = min_key
-                self.node['value'] = min_value
-                self.node['right'].remove(min_key)
+                if self.node['right'] and not self.node['right'].is_empty():
+                    min_key, min_value = self.node['right']._find_min()
+                    self.node['key'] = min_key
+                    self.node['value'] = min_value
+                    self.node['right'].remove(min_key)
 
     def _find_min(self) -> Tuple[KT, VT]:
         """Find the minimum key-value pair in the tree"""
