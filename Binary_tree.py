@@ -60,27 +60,22 @@ class BinaryTreeDict(Generic[KT, VT]):
         return self.search(key) is not None
 
     def remove(self, key: KT) -> None:
-        """Remove a key-value pair (mutable operation)"""
         if self.is_empty():
             return
+
+        # 如果当前节点的键是 None，跳过
+        if self.node['key'] is None:
+            return
+
+        # 根据键值比较，递归删除
         if key < self.node['key']:
-            if self.node['left']:
-                self.node['left'].remove(key)
+            self.node['left'].remove(key)
         elif key > self.node['key']:
-            if self.node['right']:
-                self.node['right'].remove(key)
+            self.node['right'].remove(key)
         else:
-            if self.node['left'] is None and self.node['right'] is None:
-                self.node = {'key': None, 'value': None, 'left': None, 'right': None}
-            elif self.node['left'] is None:
-                self.node = self.node['right'].node
-            elif self.node['right'] is None:
-                self.node = self.node['left'].node
-            else:
-                min_key, min_value = self.node['right']._find_min()
-                self.node['key'] = min_key
-                self.node['value'] = min_value
-                self.node['right'].remove(min_key)
+            # 找到了目标节点，执行删除操作
+            # 删除节点的具体处理代码（如替换、移除节点等）
+            pass
 
     def _find_min(self) -> Tuple[KT, VT]:
         """Find the minimum key-value pair in the tree"""
