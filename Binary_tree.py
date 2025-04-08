@@ -127,11 +127,13 @@ class BinaryTreeDict(Generic[KT, VT]):
         if self.is_empty():
             return
 
+        # 递归处理左子树和右子树
         if self.node['left']:
             self.node['left'].map(f)
         if self.node['right']:
             self.node['right'].map(f)
 
+        # 应用map函数并更新当前节点
         new_key, new_value = f(self.node['key'], self.node['value'])
         self.node['key'] = new_key
         self.node['value'] = new_value
