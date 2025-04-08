@@ -1,211 +1,201 @@
-from __future__ import annotations
-from typing import Any, Callable, Generic, Iterator, Optional, Tuple, TypeVar, Union
-from typing_extensions import Protocol
+from typing import Any, Optional, List, Tuple, Callable, TypeVar, Iterator
+
+K = TypeVar('K')
+V = TypeVar('V')
+T = TypeVar('T')
 
 
-class SupportsRichComparison(Protocol):
-    def __lt__(self, other: Any) -> bool: ...
-
-    def __le__(self, other: Any) -> bool: ...
-
-    def __gt__(self, other: Any) -> bool: ...
-
-    def __ge__(self, other: Any) -> bool: ...
+class BSTNode:
+    def __init__(self, key: K, value: V) -> None:
+        self.key: K = key
+        self.value: V = value
+        self.left: Optional[BSTNode] = None
+        self.right: Optional[BSTNode] = None
 
 
-KT = TypeVar("KT", bound=SupportsRichComparison)
-VT = TypeVar("VT")
-AccT = TypeVar("AccT")
+class BSTDictionary:
+    def __init__(self) -> None:
+        self.root: Optional[BSTNode] = None
+        self._size: int = 0
 
+    def size(self) -> int:
+        return self._size
 
-class BinaryTreeDict(Generic[KT, VT]):
-    def __init__(self, node: Optional[dict] = None):
+    def add(self, key: K, value: V) -> None:
+        if self.root is None:
+            self.root = BSTNode(key, value)
+            self._size += 1
+        else:
+            if self._add_recursive(self.root, key, value):
+                self._size += 1
+
+    def _add_recursive(self, node: BSTNode, key: K, value: V) -> bool:
+        if key < node.key:
+            if node.left is None:
+                node.left = BSTNode(key, value)
+                return True
+            else:
+                return self._add_recursive(node.left, key, value)
+        elif key > node.key:
+            if node.right is None:
+                node.right = BSTNode(key, value)
+                return True
+            else:
+                return self._add_recursive(node.right, key, value)
+        else:
+            node.value = value
+            return False
+
+    def _find_min(self, node: BSTNode) -> BSTNode:
+        while node.left is not None:
+            node = node.left
+        return node
+
+    def search(self, key: K) -> Optional[V]:
+        node = self._search_recursive(self.root, key)
+        return node.value if node else None
+
+    def _search_recursive(self, node: Optional[BSTNode], key: K) -> Optional[BSTNode]:
+        if node is None or node.key == key:
+            return node
+        elif key < node.key:
+            return self._search_recursive(node.left, key)
+        else:
+            return self._search_recursive(node.right, key)
+
+    def set(self, key: K, new_value: V) -> None:
+        node = self._search_recursive(self.root, key)
+        if node:
+            node.value = new_value
+
+    def remove(self, key: K) -> None:
+        if self.search(key) is not None:
+            self.root = self._delete_recursive(self.root, key)
+            self._size -= 1
+
+    def _delete_recursive(self, node: Optional[BSTNode], key: K) -> Optional[BSTNode]:
         if node is None:
-            node = {'key': None, 'value': None, 'left': None, 'right': None}
-        self.node = node
-
-    def is_empty(self) -> bool:
-        return self.node['key'] is None
-
-    def add(self, key: KT, value: VT) -> None:
-        """Add a new key-value pair to the tree (mutable operation)"""
-        if self.is_empty():
-            self.node = {'key': key, 'value': value, 'left': None, 'right': None}
-        elif key == self.node['key']:
-            self.node['value'] = value
-        elif key < self.node['key']:
-            if self.node['left'] is None:
-                self.node['left'] = BinaryTreeDict({'key': key, 'value': value, 'left': None, 'right': None})
-            else:
-                self.node['left'].add(key, value)
+            return node
+        if key < node.key:
+            node.left = self._delete_recursive(node.left, key)
+        elif key > node.key:
+            node.right = self._delete_recursive(node.right, key)
         else:
-            if self.node['right'] is None:
-                self.node['right'] = BinaryTreeDict({'key': key, 'value': value, 'left': None, 'right': None})
-            else:
-                self.node['right'].add(key, value)
+            if node.left is None:
+                return node.right
+            elif node.right is None:
+                return node.left
+            temp = self._find_min(node.right)
+            node.key, node.value = temp.key, temp.value
+            node.right = self._delete_recursive(node.right, temp.key)
+        return node
 
-    def search(self, key: KT) -> Optional[VT]:
-        """Search for the value corresponding to the key (mutable)"""
-        if self.is_empty():
-            return None
-        if key == self.node['key']:
-            return self.node['value']
-        elif key < self.node['key']:
-            return self.node['left'].search(key) if self.node['left'] else None
-        else:
-            return self.node['right'].search(key) if self.node['right'] else None
+    def member(self, value: V) -> bool:
+        return self._member_recursive(self.root, value)
 
-    def member(self, key: KT) -> bool:
-        """Check if the key is in the tree"""
-        return self.search(key) is not None
+    def _member_recursive(self, node: Optional[BSTNode], value: V) -> bool:
+        if node is None:
+            return False
+        if node.value == value:
+            return True
+        return (self._member_recursive(node.left, value) or
+                self._member_recursive(node.right, value))
 
-    def remove(self, key: KT) -> None:
-        """Remove a key-value pair (mutable operation)"""
-        if self.is_empty():
-            return
-        if key < self.node['key']:
-            if self.node['left']:
-                self.node['left'].remove(key)
-        elif key > self.node['key']:
-            if self.node['right']:
-                self.node['right'].remove(key)
-        else:
-            if self.node['left'] is None and self.node['right'] is None:
-                self.node = {'key': None, 'value': None, 'left': None, 'right': None}
-            elif self.node['left'] is None:
-                self.node = self.node['right'].node
-            elif self.node['right'] is None:
-                self.node = self.node['left'].node
-            else:
-                min_key, min_value = self.node['right']._find_min()
-                self.node['key'] = min_key
-                self.node['value'] = min_value
-                self.node['right'].remove(min_key)
+    def reverse(self) -> List[Tuple[K, V]]:
+        result: List[Tuple[K, V]] = []
+        self._inorder_traversal(self.root, result)
+        return result[::-1]
 
-    def _find_min(self) -> Tuple[KT, VT]:
-        """Find the minimum key-value pair in the tree"""
-        if self.node['left'] is None:
-            return self.node['key'], self.node['value']
-        return self.node['left']._find_min()
+    @classmethod
+    def from_list(cls, lst: List[Tuple[K, V]]) -> 'BSTDictionary':
+        bst_dict = cls()
+        for key, value in lst:
+            bst_dict.add(key, value)
+        return bst_dict
 
-    def to_list(self) -> list[Tuple[KT, VT]]:
-        """Convert the tree to a sorted list of key-value pairs"""
-        if self.is_empty():
-            return []
-        result = []
-        if self.node['left']:
-            result.extend(self.node['left'].to_list())
-        result.append((self.node['key'], self.node['value']))
-        if self.node['right']:
-            result.extend(self.node['right'].to_list())
+    def to_list(self) -> List[Tuple[K, V]]:
+        result: List[Tuple[K, V]] = []
+        self._inorder_traversal(self.root, result)
         return result
 
+    def _inorder_traversal(self, node: Optional[BSTNode], result: List[Tuple[K, V]]) -> None:
+        if node is not None:
+            self._inorder_traversal(node.left, result)
+            result.append((node.key, node.value))
+            self._inorder_traversal(node.right, result)
+
+    def filter(self, predicate: Callable[[K, V], bool]) -> List[Tuple[K, V]]:
+        result: List[Tuple[K, V]] = []
+        self._filter_recursive(self.root, predicate, result)
+        return sorted(result, key=lambda x: x[0])
+
+    def _filter_recursive(self, node: Optional[BSTNode],
+                         predicate: Callable[[K, V], bool],
+                         result: List[Tuple[K, V]]) -> None:
+        if node:
+            if predicate(node.key, node.value):
+                result.append((node.key, node.value))
+            self._filter_recursive(node.left, predicate, result)
+            self._filter_recursive(node.right, predicate, result)
+
+    def map(self, func: Callable[[K, V], Tuple[K, V]]) -> List[Tuple[K, V]]:
+        result: List[Tuple[K, V]] = []
+        self._map_recursive(self.root, func, result)
+        return BSTDictionary.from_list(result).to_list()
+
+    def _map_recursive(self, node: Optional[BSTNode],
+                      func: Callable[[K, V], Tuple[K, V]],
+                      result: List[Tuple[K, V]]) -> None:
+        if node:
+            result.append(func(node.key, node.value))
+            self._map_recursive(node.left, func, result)
+            self._map_recursive(node.right, func, result)
+
+    def reduce(self, func: Callable[[T, K, V], T], initial_value: T) -> T:
+        return self._reduce_recursive(self.root, func, initial_value)
+
+    def _reduce_recursive(self, node: Optional[BSTNode],
+                         func: Callable[[T, K, V], T],
+                         value: T) -> T:
+        if node is None:
+            return value
+        value = self._reduce_recursive(node.left, func, value)
+        value = func(value, node.key, node.value)
+        value = self._reduce_recursive(node.right, func, value)
+        return value
+
+    def __iter__(self) -> Iterator[Tuple[K, V]]:
+        self._iter_stack: List[BSTNode] = []
+        self._push_left(self.root)
+        return self
+
+    def __next__(self) -> Tuple[K, V]:
+        if not self._iter_stack:
+            raise StopIteration
+        node = self._iter_stack.pop()
+        self._push_left(node.right)
+        return node.key, node.value
+
+    def _push_left(self, node: Optional[BSTNode]) -> None:
+        while node:
+            self._iter_stack.append(node)
+            node = node.left
+
     @staticmethod
-    def from_list(items: list[Tuple[KT, VT]]) -> BinaryTreeDict[KT, VT]:
-        """Create a tree from a list of key-value pairs"""
-        tree = BinaryTreeDict()
-        for k, v in items:
-            tree.add(k, v)
-        return tree
+    def empty() -> 'BSTDictionary':
+        return BSTDictionary()
 
-    def __eq__(self, other: Any) -> bool:
-        """Check if two trees are equal"""
-        return isinstance(other, BinaryTreeDict) and self.to_list() == other.to_list()
+    def concat(self, other: 'BSTDictionary') -> 'BSTDictionary':
+        if not isinstance(other, BSTDictionary) or other.root is None:
+            return self  # 如果另一个字典为空或不是 BSTDictionary，直接返回当前字典
 
-    def __str__(self) -> str:
-        """String representation of the tree"""
-        return "{" + ", ".join(f"{repr(k)}: {repr(v)}" for k, v in self.to_list()) + "}"
+        # 定义一个递归的添加方法，将另一个字典的节点添加到当前字典中
+        def add_other_tree(node: Optional[BSTNode]) -> None:
+            if node is not None:
+                self.add(node.key, node.value)  # 直接调用 add 方法将节点添加到当前树
+                add_other_tree(node.left)  # 递归添加左子树
+                add_other_tree(node.right)  # 递归添加右子树
 
-    def __iter__(self) -> Iterator[KT]:
-        """Iterator for the keys in the tree"""
-        for k, _ in self.to_list():
-            yield k
-
-    def map(self, f: Callable[[KT, VT], Tuple[KT, VT]]) -> None:
-        """Apply a function to each key-value pair (mutable operation)"""
-
-        if self.is_empty():
-            return
-
-        # 递归处理左子树和右子树
-        if self.node['left']:
-            self.node['left'].map(f)
-        if self.node['right']:
-            self.node['right'].map(f)
-
-        # 应用map函数并更新当前节点
-        new_key, new_value = f(self.node['key'], self.node['value'])
-        self.node['key'] = new_key
-        self.node['value'] = new_value
-
-    def filter(self, f: Callable[[KT, VT], bool]) -> None:
-        """Filter the tree by a predicate (mutable operation)"""
-
-        # 如果当前节点为空，直接返回
-        if self.is_empty():
-            return
-
-        # 先递归处理左右子树
-        if self.node['left']:
-            self.node['left'].filter(f)
-        if self.node['right']:
-            self.node['right'].filter(f)
-
-        # 如果当前节点的 key 或 value 是 None，则跳过
-        if self.node['key'] is None or self.node['value'] is None:
-            return
-
-        # 检查当前节点是否满足过滤条件
-        if not f(self.node['key'], self.node['value']):
-            # 如果当前节点不满足条件，删除它
-            self.remove(self.node['key'])
-
-    def reduce(self, f: Callable[[AccT, KT, VT], AccT], acc: AccT) -> AccT:
-        """Fold the tree with an accumulator (mutable operation)"""
-        for k, v in self.to_list():
-            acc = f(acc, k, v)
-        return acc
-
-
-def empty() -> BinaryTreeDict[Any, Any]:
-    """Create an empty tree"""
-    return BinaryTreeDict()
-
-
-def cons(key: KT, value: VT, tree: BinaryTreeDict[KT, VT]) -> None:
-    """Add a key-value pair to the tree (mutable)"""
-    tree.add(key, value)
-
-
-def concat(t1: BinaryTreeDict[KT, VT], t2: BinaryTreeDict[KT, VT]) -> None:
-    """Concatenate two trees into a new one (mutable)"""
-    for k, v in t2.to_list():
-        t1.add(k, v)
-
-
-def length(tree: BinaryTreeDict[KT, VT]) -> int:
-    """Get the length of the tree (mutable)"""
-    return len(tree.to_list())
-
-
-def member(key: KT, tree: BinaryTreeDict[KT, VT]) -> bool:
-    """Check if a key is in the tree (mutable)"""
-    return tree.member(key)
-
-
-def remove(tree: BinaryTreeDict[KT, VT], key: KT) -> None:
-    """Remove a key-value pair from the tree (mutable)"""
-    tree.remove(key)
-
-
-def from_list(items: list[Tuple[KT, VT]]) -> BinaryTreeDict[KT, VT]:
-    """Create a tree from a list of key-value pairs (mutable)"""
-    tree = BinaryTreeDict()
-    for k, v in items:
-        tree.add(k, v)
-    return tree
-
-
-def to_list(tree: BinaryTreeDict[KT, VT]) -> list[Tuple[KT, VT]]:
-    """Convert the tree to a list of key-value pairs (mutable)"""
-    return tree.to_list()
+        # 将另一个字典的树中的节点添加到当前树
+        add_other_tree(other.root)
+        return self  # 返回当前字典（修改后的字典）
