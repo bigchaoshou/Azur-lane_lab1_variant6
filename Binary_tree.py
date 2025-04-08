@@ -77,11 +77,10 @@ class BinaryTreeDict(Generic[KT, VT]):
             elif self.node['right'] is None:
                 self.node = self.node['left'].node
             else:
-                if self.node['right'] and not self.node['right'].is_empty():
-                    min_key, min_value = self.node['right']._find_min()
-                    self.node['key'] = min_key
-                    self.node['value'] = min_value
-                    self.node['right'].remove(min_key)
+                min_key, min_value = self.node['right']._find_min()
+                self.node['key'] = min_key
+                self.node['value'] = min_value
+                self.node['right'].remove(min_key)
 
     def _find_min(self) -> Tuple[KT, VT]:
         """Find the minimum key-value pair in the tree"""
@@ -124,16 +123,36 @@ class BinaryTreeDict(Generic[KT, VT]):
 
     def map(self, f: Callable[[KT, VT], Tuple[KT, VT]]) -> None:
         """Apply a function to each key-value pair (mutable operation)"""
-        for k, v in self.to_list():
-            new_key, new_value = f(k, v)
-            self.remove(k)
-            self.add(new_key, new_value)
+
+        if self.is_empty():
+            return
+
+        if self.node['left']:
+            self.node['left'].map(f)
+        if self.node['right']:
+            self.node['right'].map(f)
+
+        new_key, new_value = f(self.node['key'], self.node['value'])
+        self.node['key'] = new_key
+        self.node['value'] = new_value
 
     def filter(self, f: Callable[[KT, VT], bool]) -> None:
         """Filter the tree by a predicate (mutable operation)"""
-        keys_to_remove = [k for k, v in self.to_list() if not f(k, v)]
-        for key in keys_to_remove:
-            self.remove(key)
+
+        # 递归过滤当前节点及其子树
+        if self.is_empty():
+            return
+
+        # 先递归处理左右子树
+        if self.node['left']:
+            self.node['left'].filter(f)
+        if self.node['right']:
+            self.node['right'].filter(f)
+
+        # 检查当前节点
+        if not f(self.node['key'], self.node['value']):
+            # 如果当前节点不满足条件，删除它
+            self.remove(self.node['key'])
 
     def reduce(self, f: Callable[[AccT, KT, VT], AccT], acc: AccT) -> AccT:
         """Fold the tree with an accumulator (mutable operation)"""
