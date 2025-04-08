@@ -4,6 +4,7 @@ K = TypeVar('K')
 V = TypeVar('V')
 T = TypeVar('T')
 
+
 class BSTDictionary:
     def __init__(self) -> None:
         self.root: Optional[dict] = None
@@ -121,8 +122,8 @@ class BSTDictionary:
         return sorted(result, key=lambda x: x[0])
 
     def _filter_recursive(self, node: Optional[dict],
-                         predicate: Callable[[K, V], bool],
-                         result: List[Tuple[K, V]]) -> None:
+                          predicate: Callable[[K, V], bool],
+                          result: List[Tuple[K, V]]) -> None:
         if node:
             if predicate(node['key'], node['value']):
                 result.append((node['key'], node['value']))
@@ -135,8 +136,8 @@ class BSTDictionary:
         return BSTDictionary.from_list(result).to_list()
 
     def _map_recursive(self, node: Optional[dict],
-                      func: Callable[[K, V], Tuple[K, V]],
-                      result: List[Tuple[K, V]]) -> None:
+                       func: Callable[[K, V], Tuple[K, V]],
+                       result: List[Tuple[K, V]]) -> None:
         if node:
             result.append(func(node['key'], node['value']))
             self._map_recursive(node['left'], func, result)
@@ -146,8 +147,8 @@ class BSTDictionary:
         return self._reduce_recursive(self.root, func, initial_value)
 
     def _reduce_recursive(self, node: Optional[dict],
-                         func: Callable[[T, K, V], T],
-                         value: T) -> T:
+                          func: Callable[[T, K, V], T],
+                          value: T) -> T:
         if node is None:
             return value
         value = self._reduce_recursive(node['left'], func, value)
@@ -178,15 +179,13 @@ class BSTDictionary:
 
     def concat(self, other: 'BSTDictionary') -> 'BSTDictionary':
         if not isinstance(other, BSTDictionary) or other.root is None:
-            return self  # 如果另一个字典为空或不是 BSTDictionary，直接返回当前字典
+            return self
 
-        # 定义一个递归的添加方法，将另一个字典的节点添加到当前字典中
         def add_other_tree(node: Optional[dict]) -> None:
             if node is not None:
-                self.add(node['key'], node['value'])  # 直接调用 add 方法将节点添加到当前树
-                add_other_tree(node['left'])  # 递归添加左子树
-                add_other_tree(node['right'])  # 递归添加右子树
+                self.add(node['key'], node['value'])
+                add_other_tree(node['left'])
+                add_other_tree(node['right'])
 
-        # 将另一个字典的树中的节点添加到当前树
         add_other_tree(other.root)
-        return self  # 返回当前字典（修改后的字典）
+        return self
