@@ -1,5 +1,6 @@
 from hypothesis import given, strategies as st
-from Binary_tree import BinaryTreeDict, empty, cons, concat, length, member, remove, from_list, to_list
+from Binary_tree import BSTDictionary
+
 
 keys = st.integers()
 values = st.text()
@@ -8,7 +9,7 @@ key_value_pairs = st.tuples(keys, values)
 
 @given(pairs=st.lists(key_value_pairs))
 def test_add_size(pairs):
-    tree = empty()
+    d = BSTDictionary()
     unique_keys = set()
     for k, v in pairs:
         if k in unique_keys:
@@ -16,136 +17,137 @@ def test_add_size(pairs):
         else:
             unique_keys.add(k)
             expected_size = len(unique_keys)
-        cons(k, v, tree)
-        assert length(tree) == expected_size
+        d.add(k, v)
+        assert d.size() == expected_size
 
 
-@given(pairs=st.lists(key_value_pairs), key=keys)
+@given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_search(pairs, key):
-    tree = from_list(pairs)
-    expected = next((v for k, v in reversed(pairs) if k == key), None)
-    assert tree.search(key) == expected
+    d = BSTDictionary.from_list(pairs)
+    expected = next(
+        (v for k, v in reversed(pairs) if k == key), None
+    )
+    assert d.search(key) == expected
 
 
-@given(pairs=st.lists(key_value_pairs), key=keys, new_value=values)
+@given(pairs=st.lists(key_value_pairs), key=st.integers(), new_value=st.text())
 def test_set(pairs, key, new_value):
-    tree = from_list(pairs)
+    d = BSTDictionary.from_list(pairs)
     original_exists = any(k == key for k, _ in pairs)
-    tree.add(key, new_value)
+    d.set(key, new_value)
     if original_exists:
-        assert tree.search(key) == new_value
+        assert d.search(key) == new_value
     else:
-        assert tree.search(key) == new_value
+        assert d.search(key) is None
 
 
-@given(pairs=st.lists(key_value_pairs), key=keys)
+@given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_remove(pairs, key):
-    tree = from_list(pairs)
-    original_size = length(tree)
+    d = BSTDictionary.from_list(pairs)
+    original_size = d.size()
     unique_keys = {k for k, _ in pairs}
-    remove(tree, key)
+    d.remove(key)
     if key in unique_keys:
-        assert length(tree) == original_size - 1
-        assert tree.search(key) is None
+        assert d.size() == original_size - 1
+        assert d.search(key) is None
     else:
-        assert length(tree) == original_size
+        assert d.size() == original_size
+
+
+@given(pairs=st.lists(key_value_pairs), value=st.text())
+def test_member(pairs, value):
+    d = BSTDictionary.from_list(pairs)
+    unique_pairs = {}
+    for k, v in pairs:
+        unique_pairs[k] = v  #
+    values_in_dict = set(unique_pairs.values())
+    assert d.member(value) == (value in values_in_dict)
 
 
 @given(pairs=st.lists(key_value_pairs))
 def test_from_list_to_list(pairs):
-    tree = from_list(pairs)
+    d = BSTDictionary.from_list(pairs)
     unique_pairs = {}
     for k, v in pairs:
         unique_pairs[k] = v
-    sorted_pairs = sorted(unique_pairs.items())
-    assert to_list(tree) == sorted_pairs
+    sorted_pairs = sorted(unique_pairs.items(), key=lambda x: x[0])
+    assert d.to_list() == sorted_pairs
 
+
+@given(pairs=st.lists(key_value_pairs))
+def test_reverse(pairs):
+    d = BSTDictionary.from_list(pairs)
+    expected = sorted(d.to_list(), key=lambda x: x[0], reverse=True)
+    assert d.reverse() == expected
 
 
 @given(pairs=st.lists(key_value_pairs))
 def test_filter(pairs):
-    tree = from_list(pairs)
-    original_items = to_list(tree)
-    tree.filter(lambda k, v: k % 2 == 0)
-    expected = [(k, v) for k, v in original_items if k % 2 == 0]
-    assert to_list(tree) == expected
+    d = BSTDictionary.from_list(pairs)
+    filtered = d.filter(lambda k, v: k % 2 == 0)
+    expected = [(k, v) for k, v in d.to_list() if k % 2 == 0]
+    assert filtered == expected
 
 
 @given(pairs=st.lists(key_value_pairs))
 def test_map(pairs):
-    tree = from_list(pairs)
-    tree.map(lambda k, v: (k + 1, v.upper()))
-    expected = [(k + 1, v.upper()) for k, v in to_list(tree)]
-    assert to_list(tree) == expected
+    d = BSTDictionary.from_list(pairs)
+    mapped = d.map(lambda k, v: (k + 1, v.upper()))
+    expected = [(k + 1, v.upper()) for k, v in d.to_list()]
+    assert mapped == expected
 
 
 @given(pairs=st.lists(key_value_pairs))
 def test_reduce(pairs):
-    tree = from_list(pairs)
-    sum_keys = tree.reduce(lambda acc, k, v: acc + k, 0)
-    expected = sum(k for k, _ in to_list(tree))
+    d = BSTDictionary.from_list(pairs)
+    sum_keys = d.reduce(lambda acc, k, v: acc + k, 0)
+    expected = sum(k for k, _ in d.to_list())
     assert sum_keys == expected
 
 
 @given(pairs=st.lists(key_value_pairs))
 def test_iterator(pairs):
-    tree = from_list(pairs)
-    via_iterator = list(iter(tree))
-    assert via_iterator == [k for k, _ in to_list(tree)]
+    d = BSTDictionary.from_list(pairs)
+    via_iterator = list(iter(d))
+    assert via_iterator == d.to_list()
 
 
 def test_empty():
-    tree = empty()
-    assert length(tree) == 0
-    assert to_list(tree) == []
+    d = BSTDictionary.empty()
+    assert d.size() == 0
+    assert d.to_list() == []
 
 
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs))
 def test_concat(pairs1, pairs2):
-    tree1 = from_list(pairs1)
-    tree2 = from_list(pairs2)
-    original_tree1 = to_list(tree1)
-    concat(tree1, tree2)
-    combined = dict(original_tree1 + to_list(tree2))
-    expected = sorted(combined.items())
-    assert to_list(tree1) == expected
+    d1 = BSTDictionary.from_list(pairs1)
+    d2 = BSTDictionary.from_list(pairs2)
+    concat1 = d1.concat(d2)
+    combined = {k: v for k, v in d1.to_list() + d2.to_list()}
+    expected = sorted(combined.items(), key=lambda x: x[0])
+    assert concat1.to_list() == expected
 
 
-@given(pairs1=st.lists(key_value_pairs),
-       pairs2=st.lists(key_value_pairs),
+@given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),
        pairs3=st.lists(key_value_pairs))
 def test_concat3(pairs1, pairs2, pairs3):
-    tree1 = from_list(pairs1)
-    tree2 = from_list(pairs2)
-    tree3 = from_list(pairs3)
-
-    #  (tree1 + tree2) + tree3
-    tree1_copy = from_list(pairs1)
-    concat(tree1_copy, tree2)
-    concat(tree1_copy, tree3)
-    result1 = to_list(tree1_copy)
-
-    #  tree1 + (tree2 + tree3)
-    tree2_tree3 = from_list(pairs2)
-    concat(tree2_tree3, tree3)
-    tree1_new = from_list(pairs1)
-    concat(tree1_new, tree2_tree3)
-    result2 = to_list(tree1_new)
-
-    assert result1 == result2
+    d1 = BSTDictionary.from_list(pairs1)
+    d2 = BSTDictionary.from_list(pairs2)
+    d3 = BSTDictionary.from_list(pairs3)
+    print(d1.to_list())
+    print(d2.to_list())
+    concat1 = d1.concat(d2)
+    print(concat1.to_list())
+    concat2 = concat1.concat(d3)
+    concat3 = d2.concat(d3)
+    concat4 = d1.concat(concat3)
+    assert concat2.to_list() == concat4.to_list()
 
 
-@given(pairs=st.lists(key_value_pairs))
-def test_monoid(pairs):
-    tree = from_list(pairs)
-    empty_tree = empty()
-
-    #  tree + empty = tree
-    tree_copy = from_list(pairs)
-    concat(tree_copy, empty_tree)
-    assert to_list(tree_copy) == to_list(tree)
-
-    #  empty + tree = tree
-    empty_copy = empty()
-    concat(empty_copy, tree)
-    assert to_list(empty_copy) == to_list(tree)
+@given(pairs1=st.lists(key_value_pairs))
+def test_monoid(pairs1,):
+    d1 = BSTDictionary.from_list(pairs1)
+    e = BSTDictionary.from_list([])
+    concat1 = d1.concat(e)
+    concat2 = e.concat(d1)
+    assert concat1.to_list() == concat2.to_list() == d1.to_list()
