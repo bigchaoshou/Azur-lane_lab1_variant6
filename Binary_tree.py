@@ -15,7 +15,9 @@ class BSTDictionary:
 
     def add(self, key: K, value: V) -> None:
         if self.root is None:
-            self.root = {'key': key, 'value': value, 'left': None, 'right': None}
+            self.root = {
+                'key': key, 'value': value, 'left': None, 'right': None
+            }
             self._size += 1
         else:
             if self._add_recursive(self.root, key, value):
@@ -24,13 +26,17 @@ class BSTDictionary:
     def _add_recursive(self, node: dict, key: K, value: V) -> bool:
         if key < node['key']:
             if node['left'] is None:
-                node['left'] = {'key': key, 'value': value, 'left': None, 'right': None}
+                node['left'] = {
+                    'key': key, 'value': value, 'left': None, 'right': None
+                }
                 return True
             else:
                 return self._add_recursive(node['left'], key, value)
         elif key > node['key']:
             if node['right'] is None:
-                node['right'] = {'key': key, 'value': value, 'left': None, 'right': None}
+                node['right'] = {
+                    'key': key, 'value': value, 'left': None, 'right': None
+                }
                 return True
             else:
                 return self._add_recursive(node['right'], key, value)
