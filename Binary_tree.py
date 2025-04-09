@@ -1,7 +1,7 @@
 from typing import Optional, List, Tuple, Callable, TypeVar, Iterator
 from typing import Protocol, Any
 
-# 定义 SupportsRichComparison 协议，要求支持丰富的比较操作
+
 class SupportsRichComparison(Protocol):
     def __lt__(self, other: Any) -> bool: ...
     def __le__(self, other: Any) -> bool: ...
@@ -71,7 +71,9 @@ class BSTDictionary:
         node = self._search_recursive(self.root, key)
         return node['value'] if node else None
 
-    def _search_recursive(self, node: Optional[dict], key: KT) -> Optional[dict]:
+    def _search_recursive(
+        self, node: Optional[dict], key: KT
+    ) -> Optional[dict]:
         if node is None or node['key'] == key:
             return node
         elif key < node['key']:
@@ -89,7 +91,9 @@ class BSTDictionary:
             self.root = self._delete_recursive(self.root, key)
             self._size -= 1
 
-    def _delete_recursive(self, node: Optional[dict], key: KT) -> Optional[dict]:
+    def _delete_recursive(
+        self, node: Optional[dict], key: KT
+    ) -> Optional[dict]:
         if node is None:
             return node
         if key < node['key']:
@@ -134,7 +138,9 @@ class BSTDictionary:
         self._inorder_traversal(self.root, result)
         return result
 
-    def _inorder_traversal(self, node: Optional[dict], result: List[Tuple[KT, VT]]) -> None:
+    def _inorder_traversal(
+        self, node: Optional[dict], result: List[Tuple[KT, VT]]
+    ) -> None:
         if node is not None:
             self._inorder_traversal(node['left'], result)
             result.append((node['key'], node['value']))
