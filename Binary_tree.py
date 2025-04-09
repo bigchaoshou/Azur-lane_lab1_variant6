@@ -1,16 +1,18 @@
-from typing import Optional, List, Tuple, Callable, TypeVar, Iterator, Protocol, Any
+from typing import Optional, List, Tuple, Callable, TypeVar, Iterator
+from typing import Protocol, Any
 
-# 定义SupportsRichComparison协议，要求支持丰富的比较操作
+# 定义 SupportsRichComparison 协议，要求支持丰富的比较操作
 class SupportsRichComparison(Protocol):
     def __lt__(self, other: Any) -> bool: ...
     def __le__(self, other: Any) -> bool: ...
     def __gt__(self, other: Any) -> bool: ...
     def __ge__(self, other: Any) -> bool: ...
 
-# 定义类型变量，绑定到SupportsRichComparison协议
+
 KT = TypeVar('KT', bound=SupportsRichComparison)
 VT = TypeVar('VT')
 AccT = TypeVar('AccT')
+
 
 class BSTDictionary:
     def __init__(self) -> None:
@@ -22,7 +24,12 @@ class BSTDictionary:
 
     def add(self, key: KT, value: VT) -> None:
         if self.root is None:
-            self.root = {'key': key, 'value': value, 'left': None, 'right': None}
+            self.root = {
+                'key': key,
+                'value': value,
+                'left': None,
+                'right': None
+            }
             self._size += 1
         else:
             if self._add_recursive(self.root, key, value):
@@ -31,13 +38,23 @@ class BSTDictionary:
     def _add_recursive(self, node: dict, key: KT, value: VT) -> bool:
         if key < node['key']:
             if node['left'] is None:
-                node['left'] = {'key': key, 'value': value, 'left': None, 'right': None}
+                node['left'] = {
+                    'key': key,
+                    'value': value,
+                    'left': None,
+                    'right': None
+                }
                 return True
             else:
                 return self._add_recursive(node['left'], key, value)
         elif key > node['key']:
             if node['right'] is None:
-                node['right'] = {'key': key, 'value': value, 'left': None, 'right': None}
+                node['right'] = {
+                    'key': key,
+                    'value': value,
+                    'left': None,
+                    'right': None
+                }
                 return True
             else:
                 return self._add_recursive(node['right'], key, value)
@@ -117,8 +134,7 @@ class BSTDictionary:
         self._inorder_traversal(self.root, result)
         return result
 
-    def _inorder_traversal(self, node: Optional[dict],
-                           result: List[Tuple[KT, VT]]) -> None:
+    def _inorder_traversal(self, node: Optional[dict], result: List[Tuple[KT, VT]]) -> None:
         if node is not None:
             self._inorder_traversal(node['left'], result)
             result.append((node['key'], node['value']))
