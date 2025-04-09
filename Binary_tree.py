@@ -146,7 +146,9 @@ class BSTDictionary:
             result.append((node['key'], node['value']))
             self._inorder_traversal(node['right'], result)
 
-    def filter(self, predicate: Callable[[KT, VT], bool]) -> List[Tuple[KT, VT]]:
+    def filter(
+            self, predicate: Callable[[KT, VT], bool]
+    ) -> List[Tuple[KT, VT]]:
         result: List[Tuple[KT, VT]] = []
         self._filter_recursive(self.root, predicate, result)
         return sorted(result, key=lambda x: x[0])
@@ -160,7 +162,9 @@ class BSTDictionary:
             self._filter_recursive(node['left'], predicate, result)
             self._filter_recursive(node['right'], predicate, result)
 
-    def map(self, func: Callable[[KT, VT], Tuple[KT, VT]]) -> List[Tuple[KT, VT]]:
+    def map(
+            self, func: Callable[[KT, VT], Tuple[KT, VT]]
+    ) -> List[Tuple[KT, VT]]:
         result: List[Tuple[KT, VT]] = []
         self._map_recursive(self.root, func, result)
         return BSTDictionary.from_list(result).to_list()
@@ -173,7 +177,9 @@ class BSTDictionary:
             self._map_recursive(node['left'], func, result)
             self._map_recursive(node['right'], func, result)
 
-    def reduce(self, func: Callable[[AccT, KT, VT], AccT], initial_value: AccT) -> AccT:
+    def reduce(
+            self, func: Callable[[AccT, KT, VT], AccT], initial_value: AccT
+    ) -> AccT:
         return self._reduce_recursive(self.root, func, initial_value)
 
     def _reduce_recursive(self, node: Optional[dict],
