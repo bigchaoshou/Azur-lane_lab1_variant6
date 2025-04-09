@@ -156,3 +156,4 @@ def test_monoid(pairs1):
     e_copy = BSTDictionary.from_list([])
     e_copy.concat(d1)
     assert e_copy.to_list() == d1.to_list()
+    
