@@ -1,4 +1,6 @@
-from typing import Optional, List, Tuple, Callable, TypeVar, Iterator, Protocol, Any, TypedDict
+from typing import (
+    Optional, List, Tuple, Callable, TypeVar, Iterator, Protocol, Any, TypedDict
+)
 
 
 class SupportsRichComparison(Protocol):
@@ -30,7 +32,9 @@ class BSTDictionary:
 
     def add(self, key: KT, value: VT) -> None:
         if self.root is None:
-            self.root = {'key': key, 'value': value, 'left': None, 'right': None}
+            self.root = {
+                'key': key, 'value': value, 'left': None, 'right': None
+            }
             self._size += 1
         else:
             if self._add_recursive(self.root, key, value):
@@ -39,16 +43,18 @@ class BSTDictionary:
     def _add_recursive(self, node: TreeNode, key: KT, value: VT) -> bool:
         if key < node['key']:
             if node['left'] is None:
-                node['left'] = {'key': key, 'value': value, 'left': None, 'right': None}
+                node['left'] = {
+                    'key': key, 'value': value, 'left': None, 'right': None
+                }
                 return True
-            else:
-                return self._add_recursive(node['left'], key, value)
+            return self._add_recursive(node['left'], key, value)
         elif key > node['key']:
             if node['right'] is None:
-                node['right'] = {'key': key, 'value': value, 'left': None, 'right': None}
+                node['right'] = {
+                    'key': key, 'value': value, 'left': None, 'right': None
+                }
                 return True
-            else:
-                return self._add_recursive(node['right'], key, value)
+            return self._add_recursive(node['right'], key, value)
         else:
             node['value'] = value
             return False
@@ -62,7 +68,11 @@ class BSTDictionary:
         node = self._search_recursive(self.root, key)
         return node['value'] if node else None
 
-    def _search_recursive(self, node: Optional[TreeNode], key: KT) -> Optional[TreeNode]:
+    def _search_recursive(
+        self,
+        node: Optional[TreeNode],
+        key: KT
+    ) -> Optional[TreeNode]:
         if node is None or node['key'] == key:
             return node
         elif key < node['key']:
@@ -80,7 +90,11 @@ class BSTDictionary:
             self.root = self._delete_recursive(self.root, key)
             self._size -= 1
 
-    def _delete_recursive(self, node: Optional[TreeNode], key: KT) -> Optional[TreeNode]:
+    def _delete_recursive(
+        self,
+        node: Optional[TreeNode],
+        key: KT
+    ) -> Optional[TreeNode]:
         if node is None:
             return node
         if key < node['key']:
@@ -100,12 +114,17 @@ class BSTDictionary:
     def member(self, value: VT) -> bool:
         return self._member_recursive(self.root, value)
 
-    def _member_recursive(self, node: Optional[TreeNode], value: VT) -> bool:
+    def _member_recursive(
+        self,
+        node: Optional[TreeNode],
+        value: VT
+    ) -> bool:
         if node is None:
             return False
         if node['value'] == value:
             return True
-        return self._member_recursive(node['left'], value) or self._member_recursive(node['right'], value)
+        return (self._member_recursive(node['left'], value)
+                or self._member_recursive(node['right'], value))
 
     def reverse(self) -> List[Tuple[KT, VT]]:
         result: List[Tuple[KT, VT]] = []
@@ -124,39 +143,68 @@ class BSTDictionary:
         self._inorder_traversal(self.root, result)
         return result
 
-    def _inorder_traversal(self, node: Optional[TreeNode], result: List[Tuple[KT, VT]]) -> None:
+    def _inorder_traversal(
+        self,
+        node: Optional[TreeNode],
+        result: List[Tuple[KT, VT]]
+    ) -> None:
         if node is not None:
             self._inorder_traversal(node['left'], result)
             result.append((node['key'], node['value']))
             self._inorder_traversal(node['right'], result)
 
-    def filter(self, predicate: Callable[[KT, VT], bool]) -> List[Tuple[KT, VT]]:
+    def filter(
+        self,
+        predicate: Callable[[KT, VT], bool]
+    ) -> List[Tuple[KT, VT]]:
         result: List[Tuple[KT, VT]] = []
         self._filter_recursive(self.root, predicate, result)
         return sorted(result, key=lambda x: x[0])
 
-    def _filter_recursive(self, node: Optional[TreeNode], predicate: Callable[[KT, VT], bool], result: List[Tuple[KT, VT]]) -> None:
+    def _filter_recursive(
+        self,
+        node: Optional[TreeNode],
+        predicate: Callable[[KT, VT], bool],
+        result: List[Tuple[KT, VT]]
+    ) -> None:
         if node:
             if predicate(node['key'], node['value']):
                 result.append((node['key'], node['value']))
             self._filter_recursive(node['left'], predicate, result)
             self._filter_recursive(node['right'], predicate, result)
 
-    def map(self, func: Callable[[KT, VT], Tuple[KT, VT]]) -> List[Tuple[KT, VT]]:
+    def map(
+        self,
+        func: Callable[[KT, VT], Tuple[KT, VT]]
+    ) -> List[Tuple[KT, VT]]:
         result: List[Tuple[KT, VT]] = []
         self._map_recursive(self.root, func, result)
         return BSTDictionary.from_list(result).to_list()
 
-    def _map_recursive(self, node: Optional[TreeNode], func: Callable[[KT, VT], Tuple[KT, VT]], result: List[Tuple[KT, VT]]) -> None:
+    def _map_recursive(
+        self,
+        node: Optional[TreeNode],
+        func: Callable[[KT, VT], Tuple[KT, VT]],
+        result: List[Tuple[KT, VT]]
+    ) -> None:
         if node:
             result.append(func(node['key'], node['value']))
             self._map_recursive(node['left'], func, result)
             self._map_recursive(node['right'], func, result)
 
-    def reduce(self, func: Callable[[AccT, KT, VT], AccT], initial_value: AccT) -> AccT:
+    def reduce(
+        self,
+        func: Callable[[AccT, KT, VT], AccT],
+        initial_value: AccT
+    ) -> AccT:
         return self._reduce_recursive(self.root, func, initial_value)
 
-    def _reduce_recursive(self, node: Optional[TreeNode], func: Callable[[AccT, KT, VT], AccT], value: AccT) -> AccT:
+    def _reduce_recursive(
+        self,
+        node: Optional[TreeNode],
+        func: Callable[[AccT, KT, VT], AccT],
+        value: AccT
+    ) -> AccT:
         if node is None:
             return value
         value = self._reduce_recursive(node['left'], func, value)
@@ -186,7 +234,8 @@ class BSTDictionary:
         return BSTDictionary()
 
     def concat(self, other: 'BSTDictionary') -> 'BSTDictionary':
-        if not isinstance(other, BSTDictionary) or other.root is None:
+        if (not isinstance(other, BSTDictionary)
+                or other.root is None):
             return self
 
         def add_other_tree(node: Optional[TreeNode]) -> None:
