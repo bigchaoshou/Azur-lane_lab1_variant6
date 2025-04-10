@@ -1,6 +1,5 @@
-from typing import (
-    Optional, List, Tuple, Callable, TypeVar, Iterator, Protocol, Any, TypedDict
-)
+from typing import (Optional, List, Tuple, Callable,
+                    TypeVar, Iterator, Protocol, Any, TypedDict)
 
 
 class SupportsRichComparison(Protocol):
