@@ -1,158 +1,249 @@
-from hypothesis import given, strategies as st
-from Binary_tree import BSTDictionary
+from typing import Optional, List, Tuple, Callable, Iterator, TypedDict
 
 
-keys = st.integers()
-values = st.text()
-key_value_pairs = st.tuples(keys, values)
+class TreeNodeDict(TypedDict, total=False):
+    key: int
+    value: str
+    left: Optional['TreeNodeDict']
+    right: Optional['TreeNodeDict']
 
 
-@given(pairs=st.lists(key_value_pairs))
-def test_add_size(pairs):
-    d = BSTDictionary()
-    unique_keys = set()
-    for k, v in pairs:
-        if k in unique_keys:
-            expected_size = len(unique_keys)
+class BSTDictionary:
+    def __init__(self) -> None:
+        self.root: Optional[TreeNodeDict] = None
+        self._size: int = 0
+
+    def size(self) -> int:
+        return self._size
+
+    def add(self, key: int, value: str) -> None:
+        if self.root is None:
+            self.root = {
+                'key': key,
+                'value': value,
+                'left': None,
+                'right': None
+            }
+            self._size += 1
         else:
-            unique_keys.add(k)
-            expected_size = len(unique_keys)
-        d.add(k, v)
-        assert d.size() == expected_size
+            if self._add_recursive(self.root, key, value):
+                self._size += 1
 
+    def _add_recursive(self, node: TreeNodeDict, key: int, value: str) -> bool:
+        if key < node['key']:
+            if node['left'] is None:
+                node['left'] = {
+                    'key': key,
+                    'value': value,
+                    'left': None,
+                    'right': None
+                }
+                return True
+            return self._add_recursive(node['left'], key, value)
+        elif key > node['key']:
+            if node['right'] is None:
+                node['right'] = {
+                    'key': key,
+                    'value': value,
+                    'left': None,
+                    'right': None
+                }
+                return True
+            return self._add_recursive(node['right'], key, value)
+        else:
+            node['value'] = value
+            return False
 
-@given(pairs=st.lists(key_value_pairs), key=st.integers())
-def test_search(pairs, key):
-    d = BSTDictionary.from_list(pairs)
-    expected = next(
-        (v for k, v in reversed(pairs) if k == key), None
-    )
-    assert d.search(key) == expected
+    def _find_min(self, node: TreeNodeDict) -> TreeNodeDict:
+        while node['left'] is not None:
+            node = node['left']
+        return node
 
+    def search(self, key: int) -> Optional[str]:
+        node = self._search_recursive(self.root, key)
+        return node['value'] if node else None
 
-@given(pairs=st.lists(key_value_pairs), key=st.integers(), new_value=st.text())
-def test_set(pairs, key, new_value):
-    d = BSTDictionary.from_list(pairs)
-    original_exists = any(k == key for k, _ in pairs)
-    d.set(key, new_value)
-    if original_exists:
-        assert d.search(key) == new_value
-    else:
-        assert d.search(key) is None
+    def _search_recursive(
+        self,
+        node: Optional[TreeNodeDict],
+        key: int
+    ) -> Optional[TreeNodeDict]:
+        if node is None or node['key'] == key:
+            return node
+        elif key < node['key']:
+            return self._search_recursive(node['left'], key)
+        else:
+            return self._search_recursive(node['right'], key)
 
+    def set(self, key: int, new_value: str) -> None:
+        node = self._search_recursive(self.root, key)
+        if node:
+            node['value'] = new_value
 
-@given(pairs=st.lists(key_value_pairs), key=st.integers())
-def test_remove(pairs, key):
-    d = BSTDictionary.from_list(pairs)
-    original_size = d.size()
-    unique_keys = {k for k, _ in pairs}
-    d.remove(key)
-    if key in unique_keys:
-        assert d.size() == original_size - 1
-        assert d.search(key) is None
-    else:
-        assert d.size() == original_size
+    def remove(self, key: int) -> None:
+        if self.search(key) is not None:
+            self.root = self._delete_recursive(self.root, key)
+            self._size -= 1
 
+    def _delete_recursive(
+        self,
+        node: Optional[TreeNodeDict],
+        key: int
+    ) -> Optional[TreeNodeDict]:
+        if node is None:
+            return node
+        if key < node['key']:
+            node['left'] = self._delete_recursive(node['left'], key)
+        elif key > node['key']:
+            node['right'] = self._delete_recursive(node['right'], key)
+        else:
+            if node['left'] is None:
+                return node['right']
+            elif node['right'] is None:
+                return node['left']
+            temp = self._find_min(node['right'])
+            node['key'], node['value'] = temp['key'], temp['value']
+            node['right'] = self._delete_recursive(
+                node['right'], temp['key']
+            )
+        return node
 
-@given(pairs=st.lists(key_value_pairs), value=st.text())
-def test_member(pairs, value):
-    d = BSTDictionary.from_list(pairs)
-    unique_pairs = {}
-    for k, v in pairs:
-        unique_pairs[k] = v  #
-    values_in_dict = set(unique_pairs.values())
-    assert d.member(value) == (value in values_in_dict)
+    def member(self, value: str) -> bool:
+        return self._member_recursive(self.root, value)
 
+    def _member_recursive(
+        self,
+        node: Optional[TreeNodeDict],
+        value: str
+    ) -> bool:
+        if node is None:
+            return False
+        if node['value'] == value:
+            return True
+        return (
+            self._member_recursive(node['left'], value)
+            or self._member_recursive(node['right'], value)
+        )
 
-@given(pairs=st.lists(key_value_pairs))
-def test_from_list_to_list(pairs):
-    d = BSTDictionary.from_list(pairs)
-    unique_pairs = {}
-    for k, v in pairs:
-        unique_pairs[k] = v
-    sorted_pairs = sorted(unique_pairs.items(), key=lambda x: x[0])
-    assert d.to_list() == sorted_pairs
+    def reverse(self) -> List[Tuple[int, str]]:
+        result: List[Tuple[int, str]] = []
+        self._inorder_traversal(self.root, result)
+        return result[::-1]
 
+    @classmethod
+    def from_list(cls, lst: List[Tuple[int, str]]) -> 'BSTDictionary':
+        bst_dict = cls()
+        for key, value in lst:
+            bst_dict.add(key, value)
+        return bst_dict
 
-@given(pairs=st.lists(key_value_pairs))
-def test_reverse(pairs):
-    d = BSTDictionary.from_list(pairs)
-    expected = sorted(d.to_list(), key=lambda x: x[0], reverse=True)
-    assert d.reverse() == expected
+    def to_list(self) -> List[Tuple[int, str]]:
+        result: List[Tuple[int, str]] = []
+        self._inorder_traversal(self.root, result)
+        return result
 
+    def _inorder_traversal(
+        self,
+        node: Optional[TreeNodeDict],
+        result: List[Tuple[int, str]]
+    ) -> None:
+        if node is not None:
+            self._inorder_traversal(node['left'], result)
+            result.append((node['key'], node['value']))
+            self._inorder_traversal(node['right'], result)
 
-@given(pairs=st.lists(key_value_pairs))
-def test_filter(pairs):
-    d = BSTDictionary.from_list(pairs)
-    filtered = d.filter(lambda k, v: k % 2 == 0)
-    expected = [(k, v) for k, v in d.to_list() if k % 2 == 0]
-    assert filtered == expected
+    def filter(
+        self,
+        predicate: Callable[[int, str], bool]
+    ) -> List[Tuple[int, str]]:
+        result: List[Tuple[int, str]] = []
+        self._filter_recursive(self.root, predicate, result)
+        return sorted(result, key=lambda x: x[0])
 
+    def _filter_recursive(
+        self,
+        node: Optional[TreeNodeDict],
+        predicate: Callable[[int, str], bool],
+        result: List[Tuple[int, str]]
+    ) -> None:
+        if node:
+            if predicate(node['key'], node['value']):
+                result.append((node['key'], node['value']))
+            self._filter_recursive(node['left'], predicate, result)
+            self._filter_recursive(node['right'], predicate, result)
 
-@given(pairs=st.lists(key_value_pairs))
-def test_map(pairs):
-    d = BSTDictionary.from_list(pairs)
-    mapped = d.map(lambda k, v: (k + 1, v.upper()))
-    expected = [(k + 1, v.upper()) for k, v in d.to_list()]
-    assert mapped == expected
+    def map(
+        self,
+        func: Callable[[int, str], Tuple[int, str]]
+    ) -> List[Tuple[int, str]]:
+        result: List[Tuple[int, str]] = []
+        self._map_recursive(self.root, func, result)
+        return BSTDictionary.from_list(result).to_list()
 
+    def _map_recursive(
+        self,
+        node: Optional[TreeNodeDict],
+        func: Callable[[int, str], Tuple[int, str]],
+        result: List[Tuple[int, str]]
+    ) -> None:
+        if node:
+            result.append(func(node['key'], node['value']))
+            self._map_recursive(node['left'], func, result)
+            self._map_recursive(node['right'], func, result)
 
-@given(pairs=st.lists(key_value_pairs))
-def test_reduce(pairs):
-    d = BSTDictionary.from_list(pairs)
-    sum_keys = d.reduce(lambda acc, k, v: acc + k, 0)
-    expected = sum(k for k, _ in d.to_list())
-    assert sum_keys == expected
+    def reduce(
+        self,
+        func: Callable[[str, int, str], str],
+        initial_value: str
+    ) -> str:
+        return self._reduce_recursive(self.root, func, initial_value)
 
+    def _reduce_recursive(
+        self,
+        node: Optional[TreeNodeDict],
+        func: Callable[[str, int, str], str],
+        value: str
+    ) -> str:
+        if node is None:
+            return value
+        value = self._reduce_recursive(node['left'], func, value)
+        value = func(value, node['key'], node['value'])
+        value = self._reduce_recursive(node['right'], func, value)
+        return value
 
-@given(pairs=st.lists(key_value_pairs))
-def test_iterator(pairs):
-    d = BSTDictionary.from_list(pairs)
-    via_iterator = list(iter(d))
-    assert via_iterator == d.to_list()
+    def __iter__(self) -> Iterator[Tuple[int, str]]:
+        self._iter_stack: List[TreeNodeDict] = []
+        self._push_left(self.root)
+        return self
 
+    def __next__(self) -> Tuple[int, str]:
+        if not self._iter_stack:
+            raise StopIteration
+        node = self._iter_stack.pop()
+        self._push_left(node['right'])
+        return node['key'], node['value']
 
-def test_empty():
-    d = BSTDictionary.empty()
-    assert d.size() == 0
-    assert d.to_list() == []
+    def _push_left(self, node: Optional[TreeNodeDict]) -> None:
+        while node:
+            self._iter_stack.append(node)
+            node = node['left']
 
+    @staticmethod
+    def empty() -> 'BSTDictionary':
+        return BSTDictionary()
 
-@given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs))
-def test_concat(pairs1, pairs2):
-    d1 = BSTDictionary.from_list(pairs1)
-    d2 = BSTDictionary.from_list(pairs2)
-    original_d1 = d1.to_list()
-    d1.concat(d2)
-    combined = dict(original_d1 + d2.to_list())
-    expected = sorted(combined.items(), key=lambda x: x[0])
-    assert d1.to_list() == expected
+    def concat(
+        self,
+        other: 'BSTDictionary'
+    ) -> 'BSTDictionary':
+        if (not isinstance(other, BSTDictionary) or other.root is None):
+            return self
 
+        def add_other_tree(node: Optional[TreeNodeDict]) -> None:
+            if node is not None:
+                self.add(node['key'], node['value'])
+                add_other_tree(node['left'])
+                add_other_tree(node['right'])
 
-@given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs),
-       pairs3=st.lists(key_value_pairs))
-def test_concat3(pairs1, pairs2, pairs3):
-    d1 = BSTDictionary.from_list(pairs1)
-    d2 = BSTDictionary.from_list(pairs2)
-    d3 = BSTDictionary.from_list(pairs3)
-    d1.concat(d2)
-    d1.concat(d3)
-    result1 = d1.to_list()
-    d1_new = BSTDictionary.from_list(pairs1)
-    d2_d3 = BSTDictionary.from_list(pairs2)
-    d2_d3.concat(d3)
-    d1_new.concat(d2_d3)
-    result2 = d1_new.to_list()
-    assert result1 == result2
-
-
-@given(pairs1=st.lists(key_value_pairs))
-def test_monoid(pairs1):
-    d1 = BSTDictionary.from_list(pairs1)
-    e = BSTDictionary.from_list([])
-    d1_copy = BSTDictionary.from_list(pairs1)  # 备份 d1
-    d1_copy.concat(e)
-    assert d1_copy.to_list() == d1.to_list()
-    e_copy = BSTDictionary.from_list([])
-    e_copy.concat(d1)
-    assert e_copy.to_list() == d1.to_list()
+        add_other_tree(other.root)
+        return self
