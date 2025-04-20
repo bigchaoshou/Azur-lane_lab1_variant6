@@ -137,12 +137,12 @@ def test_concat3(pairs1, pairs2, pairs3):
     d3 = BSTDictionary.from_list(pairs3)
     d1.concat(d2)
     d1.concat(d3)
-    result1 = d1.to_list()
+    result1 = d1
     d1_new = BSTDictionary.from_list(pairs1)
-    d2_d3 = BSTDictionary.from_list(pairs2)
-    d2_d3.concat(d3)
-    d1_new.concat(d2_d3)
-    result2 = d1_new.to_list()
+    d2_new = BSTDictionary.from_list(pairs2)
+    d2_new.concat(d3)
+    d1_new.concat(d2_new)
+    result2 = d1_new
     assert result1 == result2
 
 

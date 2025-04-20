@@ -20,6 +20,11 @@ class BSTDictionary:
             if self._add_recursive(self.root, key, value):
                 self._size += 1
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, BSTDictionary):
+            return False
+        return self.to_list() == other.to_list()
+
     def _add_recursive(self, node: dict, key: K, value: V) -> bool:
         if key < node['key']:
             if node['left'] is None:
@@ -178,15 +183,13 @@ class BSTDictionary:
 
     def concat(self, other: 'BSTDictionary') -> 'BSTDictionary':
         if not isinstance(other, BSTDictionary) or other.root is None:
-            return self  # 如果另一个字典为空或不是 BSTDictionary，直接返回当前字典
+            return self
 
-        # 定义一个递归的添加方法，将另一个字典的节点添加到当前字典中
-        def add_other_tree(node: Optional[dict]) -> None:
+        def add_inorder(node: Optional[dict]) -> None:
             if node is not None:
-                self.add(node['key'], node['value'])  # 直接调用 add 方法将节点添加到当前树
-                add_other_tree(node['left'])  # 递归添加左子树
-                add_other_tree(node['right'])  # 递归添加右子树
+                add_inorder(node['left'])
+                self.add(node['key'], node['value'])
+                add_inorder(node['right'])
 
-        # 将另一个字典的树中的节点添加到当前树
-        add_other_tree(other.root)
-        return self  # 返回当前字典（修改后的字典）
+        add_inorder(other.root)
+        return self
