@@ -13,6 +13,11 @@ class BSTDictionary:
         self.root: Optional[TreeNodeDict] = None
         self._size: int = 0
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BSTDictionary):
+            return False
+        return self.to_list() == other.to_list()
+
     def size(self) -> int:
         return self._size
 
