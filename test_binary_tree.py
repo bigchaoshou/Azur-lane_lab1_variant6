@@ -1,6 +1,6 @@
 from hypothesis import given, strategies as st
 from Binary_tree import BSTDictionary
-from typing import Optional, Set, Dict, List, Tuple
+from typing import Set, Dict, List, Tuple
 
 
 keys = st.integers()
