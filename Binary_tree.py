@@ -16,7 +16,38 @@ class BSTDictionary:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BSTDictionary):
             return False
-        return self.to_list() == other.to_list()
+
+        def inorder_gen(node):
+            stack = []
+            while stack or node:
+                while node:
+                    stack.append(node)
+                    node = node["left"]
+                node = stack.pop()
+                yield (node["key"], node["value"])
+                node = node["right"]
+
+        gen1 = inorder_gen(self.root)
+        gen2 = inorder_gen(other.root)
+
+        for pair1, pair2 in zip(gen1, gen2):
+            if pair1 != pair2:
+                return False
+
+        # Check if both trees had the same number of nodes
+        try:
+            next(gen1)
+            return False
+        except StopIteration:
+            pass
+
+        try:
+            next(gen2)
+            return False
+        except StopIteration:
+            pass
+
+        return True
 
     def size(self) -> int:
         return self._size
