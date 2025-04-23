@@ -139,9 +139,9 @@ def test_concat3(pairs1, pairs2, pairs3):
     d1.concat(d3)
     result1 = d1
     d1_new = BSTDictionary.from_list(pairs1)
-    d2_d3 = BSTDictionary.from_list(pairs2)
-    d2_d3.concat(d3)
-    d1_new.concat(d2_d3)
+    d2_new = BSTDictionary.from_list(pairs2)
+    d2_new.concat(d3)
+    d1_new.concat(d2_new)
     result2 = d1_new
     assert result1 == result2
 
@@ -150,7 +150,7 @@ def test_concat3(pairs1, pairs2, pairs3):
 def test_monoid(pairs1):
     d1 = BSTDictionary.from_list(pairs1)
     e = BSTDictionary.from_list([])
-    d1_copy = BSTDictionary.from_list(pairs1)  # 备份 d1
+    d1_copy = BSTDictionary.from_list(pairs1)
     d1_copy.concat(e)
     assert d1_copy.to_list() == d1.to_list()
     e_copy = BSTDictionary.from_list([])
