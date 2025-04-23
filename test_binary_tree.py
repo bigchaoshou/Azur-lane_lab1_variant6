@@ -118,8 +118,8 @@ def test_empty() -> None:
 
 
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs))
-def test_concat(pairs1: List[Tuple[int, str]]
-                , pairs2: List[Tuple[int, str]]) -> None:
+def test_concat(pairs1: List[Tuple[int, str]],
+                pairs2: List[Tuple[int, str]]) -> None:
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
     original_d1 = d1.to_list()
@@ -151,6 +151,7 @@ def test_concat3(
     d1_new.concat(d2_d3)
     result2 = d1_new
     assert result1.to_list() == result2.to_list()
+
 
 @given(pairs1=st.lists(key_value_pairs))
 def test_monoid(pairs1: List[Tuple[int, str]]) -> None:
