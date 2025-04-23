@@ -2,9 +2,11 @@ from hypothesis import given, strategies as st
 from Binary_tree import BSTDictionary
 from typing import Optional, Set, Dict, List, Tuple
 
+
 keys = st.integers()
 values = st.text()
 key_value_pairs = st.tuples(keys, values)
+
 
 @given(pairs=st.lists(key_value_pairs))
 def test_add_size(pairs: List[Tuple[int, str]]) -> None:
@@ -19,11 +21,13 @@ def test_add_size(pairs: List[Tuple[int, str]]) -> None:
         d.add(k, v)
         assert d.size() == expected_size
 
+
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_search(pairs: List[Tuple[int, str]], key: int) -> None:
     d = BSTDictionary.from_list(pairs)
     expected = next((v for k, v in reversed(pairs) if k == key), None)
     assert d.search(key) == expected
+
 
 @given(pairs=st.lists(key_value_pairs), key=st.integers(), new_value=st.text())
 def test_set(pairs: List[Tuple[int, str]], key: int, new_value: str) -> None:
@@ -34,6 +38,7 @@ def test_set(pairs: List[Tuple[int, str]], key: int, new_value: str) -> None:
         assert d.search(key) == new_value
     else:
         assert d.search(key) is None
+
 
 @given(pairs=st.lists(key_value_pairs), key=st.integers())
 def test_remove(pairs: List[Tuple[int, str]], key: int) -> None:
@@ -47,6 +52,7 @@ def test_remove(pairs: List[Tuple[int, str]], key: int) -> None:
     else:
         assert d.size() == original_size
 
+
 @given(pairs=st.lists(key_value_pairs), value=st.text())
 def test_member(pairs: List[Tuple[int, str]], value: str) -> None:
     d = BSTDictionary.from_list(pairs)
@@ -55,6 +61,7 @@ def test_member(pairs: List[Tuple[int, str]], value: str) -> None:
         unique_pairs[k] = v
     values_in_dict = set(unique_pairs.values())
     assert d.member(value) == (value in values_in_dict)
+
 
 @given(pairs=st.lists(key_value_pairs))
 def test_from_list_to_list(pairs: List[Tuple[int, str]]) -> None:
@@ -65,11 +72,13 @@ def test_from_list_to_list(pairs: List[Tuple[int, str]]) -> None:
     sorted_pairs = sorted(unique_pairs.items(), key=lambda x: x[0])
     assert d.to_list() == sorted_pairs
 
+
 @given(pairs=st.lists(key_value_pairs))
 def test_reverse(pairs: List[Tuple[int, str]]) -> None:
     d = BSTDictionary.from_list(pairs)
     expected = sorted(d.to_list(), key=lambda x: x[0], reverse=True)
     assert d.reverse() == expected
+
 
 @given(pairs=st.lists(key_value_pairs))
 def test_filter(pairs: List[Tuple[int, str]]) -> None:
@@ -78,12 +87,14 @@ def test_filter(pairs: List[Tuple[int, str]]) -> None:
     expected = [(k, v) for k, v in d.to_list() if k % 2 == 0]
     assert filtered == expected
 
+
 @given(pairs=st.lists(key_value_pairs))
 def test_map(pairs: List[Tuple[int, str]]) -> None:
     d = BSTDictionary.from_list(pairs)
     mapped = d.map(lambda k, v: (k + 1, v.upper()))
     expected = [(k + 1, v.upper()) for k, v in d.to_list()]
     assert mapped == expected
+
 
 @given(pairs=st.lists(key_value_pairs))
 def test_reduce(pairs: List[Tuple[int, str]]) -> None:
@@ -92,19 +103,23 @@ def test_reduce(pairs: List[Tuple[int, str]]) -> None:
     expected = sum(k for k, _ in d.to_list())
     assert sum_keys == expected
 
+
 @given(pairs=st.lists(key_value_pairs))
 def test_iterator(pairs: List[Tuple[int, str]]) -> None:
     d = BSTDictionary.from_list(pairs)
     via_iterator = list(iter(d))
     assert via_iterator == d.to_list()
 
+
 def test_empty() -> None:
     d = BSTDictionary.empty()
     assert d.size() == 0
     assert d.to_list() == []
 
+
 @given(pairs1=st.lists(key_value_pairs), pairs2=st.lists(key_value_pairs))
-def test_concat(pairs1: List[Tuple[int, str]], pairs2: List[Tuple[int, str]]) -> None:
+def test_concat(pairs1: List[Tuple[int, str]]
+                , pairs2: List[Tuple[int, str]]) -> None:
     d1 = BSTDictionary.from_list(pairs1)
     d2 = BSTDictionary.from_list(pairs2)
     original_d1 = d1.to_list()
@@ -112,6 +127,7 @@ def test_concat(pairs1: List[Tuple[int, str]], pairs2: List[Tuple[int, str]]) ->
     combined = dict(original_d1 + d2.to_list())
     expected = sorted(combined.items(), key=lambda x: x[0])
     assert d1.to_list() == expected
+
 
 @given(
     pairs1=st.lists(key_value_pairs),
